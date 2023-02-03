@@ -17,13 +17,13 @@
 						<h1 class="text-center text-3xl font-bold">Gridmap Playground</h1>
 					</div>
 					<div class="mb-6">
-						<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4">
-							<h2 class="mb-2 text-lg font-semibold text-center">Config</h2>
-							<div class="grid grid-flow-col-dense grid-rows-1 gap-2 justify-center">
-								<div class="flex flex-col mb-4">
+						<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4 flex flex-col gap-4">
+							<h2 class="text-lg font-semibold text-center">Config</h2>
+							<div class="grid grid-cols-3 grid-rows-2 gap-2 justify-center">
+								<div class="flex flex-col items-center gap-1">
 									<label
 										for="width"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										class="text-xs text-stone-700 dark:text-stone-300"
 									>Width</label>
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -37,10 +37,10 @@
 										required
 									/>
 								</div>
-								<div class="flex flex-col mb-4">
+								<div class="flex flex-col items-center gap-1">
 									<label
 										for="height"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										class="text-xs text-stone-700 dark:text-stone-300"
 									>Height</label>
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -54,11 +54,11 @@
 										required
 									/>
 								</div>
-								<div class="flex flex-col mb-4">
+								<div class="flex flex-col items-center gap-1">
 									<label
 										for="frequency"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
-									>Frequency</label>
+										class="text-xs text-stone-700 dark:text-stone-300"
+									>Freq.</label>
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
@@ -71,10 +71,10 @@
 										required
 									/>
 								</div>
-								<div class="flex flex-col mb-4">
+								<div class="flex flex-col items-center gap-1">
 									<label
 										for="tilesize"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										class="text-xs text-stone-700 dark:text-stone-300"
 									>Tilesize</label>
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -88,10 +88,10 @@
 										required
 									/>
 								</div>
-								<div class="flex flex-col mb-4">
+								<div class="flex flex-col items-center gap-1">
 									<label
 										for="gap"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										class="text-xs text-stone-700 dark:text-stone-300"
 									>Gap</label>
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -102,6 +102,23 @@
 										max="1024"
 										placeholder="0..."
 										name="gap"
+										required
+									/>
+								</div>
+								<div class="flex flex-col items-center gap-1">
+									<label
+										for="gap"
+										class="text-xs text-stone-700 dark:text-stone-300"
+									>Octaves</label>
+									<input
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+										type="number"
+										v-model.number="config.octaves"
+										id="octaves"
+										min="0"
+										max="1024"
+										placeholder="0..."
+										name="octaves"
 										required
 									/>
 								</div>
@@ -119,11 +136,11 @@
 								<div>
 									<p class="text-sm text-stone-200">Simplex noise output values are between -1 and 1.</p>
 								</div>
-								<div v-for="(colorRangeValue, i) in colorRangeValues" :key="colorRangeValue.name" class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start">
-									<div class="flex flex-col">
+								<div v-for="(colorRangeValue, i) in colorRangeValues.sort((a, b) => a.min - b.min)" :key="colorRangeValue.name" class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start">
+									<div class="flex flex-col items-center">
 										<label
 											:for="`color-${i}`"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Color</label>
 										<input
 											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -134,25 +151,25 @@
 											required
 										/>
 									</div>
-									<div class="flex flex-col">
+									<div class="flex flex-col items-center">
 										<label
 											:for="`name-${i}`"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Name</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
 											type="text"
-											v-model="colorRangeValue.name"
+											v-model.lazy="colorRangeValue.name"
 											:id="`name-${i}`"
 											:name="`name-${i}`"
 											placeholder="Name..."
 											required
 										/>
 									</div>
-									<div class="flex flex-col">
+									<div class="flex flex-col items-center">
 										<label
 											:for="`min-${i}`"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Min</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
@@ -167,10 +184,10 @@
 											required
 										/>
 									</div>
-									<div class="flex flex-col">
+									<div class="flex flex-col items-center">
 										<label
 											:for="`max-${i}`"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Max</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
@@ -194,10 +211,10 @@
 							</div>
 							<form class="flex flex-col gap-4 bg-stone-400 dark:bg-stone-600 rounded-xl p-2" @submit.prevent="addNewRange">
 								<div class="grid grid-flow-col-dense grid-rows-1 gap-2">
-									<div class="flex flex-col">
+									<div class="flex flex-col items-center">
 										<label
 											for="color-new"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Color</label>
 										<input
 											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
@@ -208,10 +225,10 @@
 											required
 										/>
 									</div>
-									<div class="flex flex-col max-w-26">
+									<div class="flex flex-col items-center max-w-26">
 										<label
 											for="name-new"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Name</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
@@ -223,10 +240,10 @@
 											required
 										/>
 									</div>
-									<div class="flex flex-col max-w-16">
+									<div class="flex flex-col items-center max-w-16">
 										<label
 											for="min-new"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Min</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
@@ -241,10 +258,10 @@
 											required
 										/>
 									</div>
-									<div class="flex flex-col max-w-16">
+									<div class="flex flex-col items-center max-w-16">
 										<label
-											:for="`max-new`"
-											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+											for="max-new"
+											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
 										>Max</label>
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
@@ -270,8 +287,8 @@
 								<h2 class="text-lg font-semibold">Raw map</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
 							</summary>
-							<div class="flex flex-col gap-4 mt-2 mb-6">
-								<canvas id="raw-map" class="rounded-sm"></canvas>
+							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
+								<canvas id="raw-map" class="rounded-md w-full h-full"></canvas>
 							</div>
 						</details>
 					</div>
@@ -325,7 +342,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
-const config = reactive<Config>({ width: 64, height: 64, frequency: 2, tilesize: 8, gap: 2 });
+const config = reactive<Config>({ width: 64, height: 64, frequency: 2, tilesize: 8, gap: 2, octaves: 3 });
 const newColorRange = ref<ColorRange>({
 	name: "",
 	color: "#000000",
@@ -356,7 +373,6 @@ function generate(): void {
 
 function addNewRange(): void {
 	colorRangeValues.push(newColorRange.value);
-	gridMapGenerator.setColorRanges(colorRangeValues);
 	newColorRange.value = {
 		name: "",
 		color: "#000000",
@@ -367,11 +383,15 @@ function addNewRange(): void {
 
 function removeRange(i: number): void {
 	colorRangeValues.splice(i, 1);
-	gridMapGenerator.setColorRanges(colorRangeValues);
 }
 
 watch(config, () => {
 	gridMapGenerator.setConfig(config);
+	gridMapGenerator.draw(false);
+});
+
+watch(colorRangeValues, () => {
+	gridMapGenerator.setColorRanges(colorRangeValues);
 	gridMapGenerator.draw(false);
 });
 </script>

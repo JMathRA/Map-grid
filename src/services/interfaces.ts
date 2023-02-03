@@ -11,4 +11,5 @@ export interface Config {
 	frequency: number;
 	tilesize: number;
 	gap: number;
+	octaves: number;
 }

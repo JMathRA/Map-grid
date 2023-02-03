@@ -14,11 +14,11 @@ export default class GridMapGenerator {
 
 	public draw(shouldRegenerate?: boolean): void {
 		this.drawGridMap(shouldRegenerate);
-		this.drawRawMap(this.heightMap, this.config.width, this.config.height, 1);
+		this.drawRawMap(this.heightMap, this.config.width, this.config.height, 1, this.config.octaves);
 	}
 
 	public setColorRanges(colorRanges: ColorRange[]): void {
-		this.colorRanges = colorRanges;
+		this.colorRanges = colorRanges.sort((a, b) => a.min - b.min);
 	}
 
 	public setConfig(config: Config): void {
@@ -38,10 +38,13 @@ export default class GridMapGenerator {
 			for (let y = 0; y < this.config.height; y++) {
 				const nx = x / wavelengthX;
 				const ny = y / wavelengthY;
-				let e = 1 * this.noise2D(1 * nx, 1 * ny)
-					+ 0.5 * this.noise2D(2 * nx, 2 * ny)
-					+ 0.25 * this.noise2D(4 * nx, 4 * ny);
-				e = e / (1 + 0.5 + 0.25);
+				let e = 0;
+				let acc = 0;
+				for (let o = 0; o < this.config.octaves; o++) {
+					acc += 1 / Math.pow(2, o);
+					e += this.noise2D(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
+				}
+				e = e / acc;
 				map[x][y] = Math.pow(e, 1);
 			}
 		}
@@ -61,8 +64,8 @@ export default class GridMapGenerator {
 		}
 	}
 
-	private drawRawMap(rawMap: number[][], width: number, height: number, tilesize: number): void {
-		const ctx = this.get2DCanvas("raw-map", { width, height, tilesize, gap: 0, frequency: 0 });
+	private drawRawMap(rawMap: number[][], width: number, height: number, tilesize: number, octaves: number): void {
+		const ctx = this.get2DCanvas("raw-map", { width, height, tilesize, gap: 0, frequency: 0, octaves });
 		for (let i = 0; i < rawMap.length; i++) {
 			for (let j = 0; j < rawMap[i].length; j++) {
 				ctx.beginPath();
