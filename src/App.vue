@@ -177,6 +177,17 @@
 					<div class="mb-6">
 						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
+								<h2 class="text-lg font-semibold">Biomes</h2>
+								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+							</summary>
+							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
+								<canvas id="color-range-map" class="rounded-md w-full h-full"></canvas>
+							</div>
+						</details>
+					</div>
+					<div class="mb-6">
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Ranges</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
 							</summary>
@@ -330,7 +341,7 @@
 						</details>
 					</div>
 					<div class="mb-6">
-						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4">
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Raw height map</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -341,7 +352,7 @@
 						</details>
 					</div>
 					<div class="mb-6">
-						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4">
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Raw moisture map</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>

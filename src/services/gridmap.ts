@@ -40,7 +40,7 @@ export default class GridMapGenerator {
 	}
 
 	public setColorRanges(colorRanges: ColorRange[]): void {
-		this.colorRanges = colorRanges.sort((a, b) => a.min - b.min);
+		this.colorRanges = colorRanges;
 	}
 
 	public setHeightMapConfig(config: Config): void {

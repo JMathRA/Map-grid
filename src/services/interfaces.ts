@@ -4,9 +4,7 @@ export interface Point {
 }
 
 export interface ColorRange {
-	min: number;
-	max: number;
-	// coordinates: [Point, Point];
+	coordinates: [Point, Point];
 	color: string;
 	name: string;
 }
