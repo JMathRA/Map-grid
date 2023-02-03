@@ -291,10 +291,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import Button from "./components/Button.vue";
 
-import { init } from "./services/gridmap";
+import GridMapGenerator from "./services/gridmap";
 import type { ColorRange, Config } from "./services/interfaces";
 import "normalize.css";
 
@@ -332,7 +332,7 @@ const newColorRange = ref<ColorRange>({
 	min: 0,
 	max: 0,
 });
-const isLoading = ref<boolean>(false);
+const gridMapGenerator = new GridMapGenerator(config, colorRangeValues);
 
 onMounted(() => {
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -342,9 +342,7 @@ onMounted(() => {
 		document.documentElement.classList.add("light");
 		isDarkMode.value = false;
 	}
-	isLoading.value = true;
-	init(config, colorRangeValues);
-	isLoading.value = false;
+	gridMapGenerator.draw(true);
 });
 
 function changeTheme(): void {
@@ -353,14 +351,12 @@ function changeTheme(): void {
 }
 
 function generate(): void {
-	isLoading.value = true;
-	init(config, colorRangeValues);
-	isLoading.value = false;
+	gridMapGenerator.draw(true);
 }
 
 function addNewRange(): void {
 	colorRangeValues.push(newColorRange.value);
-	init(config, colorRangeValues);
+	gridMapGenerator.setColorRanges(colorRangeValues);
 	newColorRange.value = {
 		name: "",
 		color: "#000000",
@@ -371,8 +367,13 @@ function addNewRange(): void {
 
 function removeRange(i: number): void {
 	colorRangeValues.splice(i, 1);
-	init(config, colorRangeValues);
+	gridMapGenerator.setColorRanges(colorRangeValues);
 }
+
+watch(config, () => {
+	gridMapGenerator.setConfig(config);
+	gridMapGenerator.draw(false);
+});
 </script>
 
 <style lang="scss" scoped>
