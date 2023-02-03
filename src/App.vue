@@ -19,122 +19,170 @@
 					<div class="mb-6">
 						<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4 flex flex-col gap-4">
 							<h2 class="text-lg font-semibold text-center">Config</h2>
-							<div class="grid grid-cols-3 grid-rows-2 gap-2 justify-center">
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="width"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Width</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.width"
-										id="width"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="width"
-										required
-									/>
+							<details class="flex flex-col bg-stone-400 dark:bg-stone-600 rounded-xl p-4" open>
+								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
+									<h2 class="text-lg font-semibold">Height map</h2>
+									<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								</summary>
+								<div class="grid grid-cols-3 grid-rows-2 gap-2 mt-2 justify-center">
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="width"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Width</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.width"
+											id="width"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="width"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="height"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Height</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.height"
+											id="height"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="height"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="frequency"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Freq.</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.frequency"
+											id="frequency"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="frequency"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="tilesize"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Tilesize</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.tilesize"
+											id="tilesize"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="tilesize"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="gap"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Gap</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.gap"
+											id="gap"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="gap"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="gap"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Octaves</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="heightMapConfig.octaves"
+											id="octaves"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="octaves"
+											required
+										/>
+									</div>
 								</div>
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="height"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Height</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.height"
-										id="height"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="height"
-										required
-									/>
+							</details>
+							<details class="flex flex-col bg-stone-400 dark:bg-stone-600 rounded-xl p-4" open>
+								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
+									<h2 class="text-lg font-semibold">Moisture map</h2>
+									<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								</summary>
+								<div class="grid grid-cols-2 grid-rows-1 gap-2 mt-2 justify-center">
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="frequency"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Freq.</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="moistureMapConfig.frequency"
+											id="frequency"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="frequency"
+											required
+										/>
+									</div>
+									<div class="flex flex-col items-center gap-1">
+										<label
+											for="gap"
+											class="text-xs text-stone-700 dark:text-stone-300"
+										>Octaves</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="number"
+											v-model.lazy="moistureMapConfig.octaves"
+											id="octaves"
+											min="0"
+											max="1024"
+											placeholder="0..."
+											name="octaves"
+											required
+										/>
+									</div>
 								</div>
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="frequency"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Freq.</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.frequency"
-										id="frequency"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="frequency"
-										required
-									/>
-								</div>
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="tilesize"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Tilesize</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.tilesize"
-										id="tilesize"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="tilesize"
-										required
-									/>
-								</div>
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="gap"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Gap</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.gap"
-										id="gap"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="gap"
-										required
-									/>
-								</div>
-								<div class="flex flex-col items-center gap-1">
-									<label
-										for="gap"
-										class="text-xs text-stone-700 dark:text-stone-300"
-									>Octaves</label>
-									<input
-										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-										type="number"
-										v-model.lazy="config.octaves"
-										id="octaves"
-										min="0"
-										max="1024"
-										placeholder="0..."
-										name="octaves"
-										required
-									/>
-								</div>
-							</div>
+							</details>
 							<Button @click="generate">Create new map</Button>
 						</div>
 					</div>
 					<div class="mb-6">
 						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
-							<summary class="flex flex-row justify-between items-center cursor-pointer">
+							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Ranges</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
 							</summary>
 							<div class="flex flex-col gap-4 mt-2 mb-6">
 								<div>
-									<p class="text-sm text-stone-200">Simplex noise output values are between -1 and 1.</p>
+									<p class="text-sm text-stone-600 dark:text-stone-200">Simplex noise output values are between -1 and 1.</p>
 								</div>
 								<div v-for="(colorRangeValue, i) in colorRangeValues.sort((a, b) => a.min - b.min)" :key="colorRangeValue.name" class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start">
 									<div class="flex flex-col items-center">
@@ -203,7 +251,7 @@
 										/>
 									</div>
 									<div class="flex items-end h-16">
-										<Button class="h-10 w-9" @click="removeRange(i)">
+										<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
 											<img src="./assets/trash.svg" alt="Trash" />
 										</Button>
 									</div>
@@ -283,12 +331,23 @@
 					</div>
 					<div class="mb-6">
 						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
-							<summary class="flex flex-row justify-between items-center cursor-pointer">
-								<h2 class="text-lg font-semibold">Raw map</h2>
+							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
+								<h2 class="text-lg font-semibold">Raw height map</h2>
 								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
 							</summary>
 							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
-								<canvas id="raw-map" class="rounded-md w-full h-full"></canvas>
+								<canvas id="raw-height-map" class="rounded-md w-full h-full"></canvas>
+							</div>
+						</details>
+					</div>
+					<div class="mb-6">
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
+								<h2 class="text-lg font-semibold">Raw moisture map</h2>
+								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+							</summary>
+							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
+								<canvas id="raw-moisture-map" class="rounded-md w-full h-full"></canvas>
 							</div>
 						</details>
 					</div>
@@ -312,7 +371,7 @@ import { ref, reactive, onMounted, watch } from "vue";
 import Button from "./components/Button.vue";
 
 import GridMapGenerator from "./services/gridmap";
-import type { ColorRange, Config } from "./services/interfaces";
+import type { ColorRange, Config, ConfigLight } from "./services/interfaces";
 import "normalize.css";
 
 const colorRangeValues = reactive<ColorRange[]>([
@@ -342,14 +401,15 @@ const colorRangeValues = reactive<ColorRange[]>([
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
-const config = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
+const heightMapConfig = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
+const moistureMapConfig = reactive<ConfigLight>({ frequency: 2, octaves: 3 });
 const newColorRange = ref<ColorRange>({
 	name: "",
 	color: "#000000",
 	min: 0,
 	max: 0,
 });
-const gridMapGenerator = new GridMapGenerator(config, colorRangeValues);
+const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, colorRangeValues);
 
 onMounted(() => {
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -385,8 +445,13 @@ function removeRange(i: number): void {
 	colorRangeValues.splice(i, 1);
 }
 
-watch(config, () => {
-	gridMapGenerator.setConfig(config);
+watch(heightMapConfig, () => {
+	gridMapGenerator.setHeightMapConfig(heightMapConfig);
+	gridMapGenerator.draw(false);
+});
+
+watch(moistureMapConfig, () => {
+	gridMapGenerator.setMoistureMapConfig(moistureMapConfig);
 	gridMapGenerator.draw(false);
 });
 
@@ -433,7 +498,7 @@ watch(colorRangeValues, () => {
 	}
 
 	.sidebar {
-		flex-basis: 25rem;
+		flex-basis: 28rem;
 		flex-grow: 1;
 		z-index: 998;
 		border-radius: 1rem 0 0 1rem;

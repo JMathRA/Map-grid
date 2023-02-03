@@ -1,48 +1,98 @@
 import { createNoise2D } from "simplex-noise";
-import { ColorRange, Config } from "./interfaces";
+import { ColorRange, Config, ConfigLight } from "./interfaces";
 
 export default class GridMapGenerator {
-	private config: Config;
 	private colorRanges: ColorRange[];
+	// HEIGHT MAP
+	private heightMapConfig: Config;
 	private heightMap: number[][] = [];
-	private noise2D: ((x: number, y: number) => number) | undefined;
+	private heightMapNoise: ((x: number, y: number) => number) | undefined;
+	// MOISTURE MAP
+	private moistureMapConfig: ConfigLight;
+	private moistureMap: number[][] = [];
+	private moistureMapNoise: ((x: number, y: number) => number) | undefined;
 
-	constructor(config: Config, colorRanges: ColorRange[]) {
-		this.config = config;
+	constructor(heightMapConfig: Config, moistureMapConfig: ConfigLight, colorRanges: ColorRange[]) {
+		this.heightMapConfig = heightMapConfig;
+		this.moistureMapConfig = moistureMapConfig;
 		this.colorRanges = colorRanges;
 	}
 
 	public draw(shouldRegenerate?: boolean): void {
 		this.drawGridMap(shouldRegenerate);
-		this.drawRawMap(this.heightMap, this.config.width, this.config.height, 1, this.config.octaves);
+		this.createMoistureMap();
+		this.drawRawMap(
+			"raw-height-map",
+			this.heightMap,
+			this.heightMapConfig.width,
+			this.heightMapConfig.height,
+			1,
+			this.heightMapConfig.octaves
+		);
+		this.drawRawMap(
+			"raw-moisture-map",
+			this.moistureMap,
+			this.heightMapConfig.width,
+			this.heightMapConfig.height,
+			1,
+			this.moistureMapConfig.octaves
+		);
 	}
 
 	public setColorRanges(colorRanges: ColorRange[]): void {
 		this.colorRanges = colorRanges.sort((a, b) => a.min - b.min);
 	}
 
-	public setConfig(config: Config): void {
-		this.config = config;
+	public setHeightMapConfig(config: Config): void {
+		this.heightMapConfig = config;
 	}
 
-	private createHeightMap(shouldRegenerate?: boolean): void {
-		const map: number[][] = [];
-		if (shouldRegenerate || !this.noise2D) {
-			this.noise2D = createNoise2D();
-		}
-		const wavelengthX = this.config.width / this.config.frequency;
-		const wavelengthY = this.config.height / this.config.frequency;
+	public setMoistureMapConfig(config: ConfigLight): void {
+		this.moistureMapConfig = config;
+	}
 
-		for (let x = 0; x < this.config.width; x++) {
+	private createMoistureMap(): void {
+		const map: number[][] = [];
+		this.moistureMapNoise = createNoise2D();
+		const wavelengthX = this.heightMapConfig.width / this.moistureMapConfig.frequency;
+		const wavelengthY = this.heightMapConfig.height / this.moistureMapConfig.frequency;
+
+		for (let x = 0; x < this.heightMapConfig.width; x++) {
 			map.push([]);
-			for (let y = 0; y < this.config.height; y++) {
+			for (let y = 0; y < this.heightMapConfig.height; y++) {
 				const nx = x / wavelengthX;
 				const ny = y / wavelengthY;
 				let e = 0;
 				let acc = 0;
-				for (let o = 0; o < this.config.octaves; o++) {
+				for (let o = 0; o < this.moistureMapConfig.octaves; o++) {
 					acc += 1 / Math.pow(2, o);
-					e += this.noise2D(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
+					e += this.moistureMapNoise(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
+				}
+				e = e / acc;
+				map[x][y] = Math.pow(e, 1);
+			}
+		}
+		this.moistureMap = map;
+	}
+
+	private createHeightMap(shouldRegenerate?: boolean): void {
+		const map: number[][] = [];
+		if (shouldRegenerate || !this.heightMapNoise) {
+			this.heightMapNoise = createNoise2D();
+		}
+		const wavelengthX = this.heightMapConfig.width / this.heightMapConfig.frequency;
+		const wavelengthY = this.heightMapConfig.height / this.heightMapConfig.frequency;
+
+		for (let x = 0; x < this.heightMapConfig.width; x++) {
+			map.push([]);
+			for (let y = 0; y < this.heightMapConfig.height; y++) {
+				const nx = x / wavelengthX;
+				const ny = y / wavelengthY;
+				let e = 0;
+				let acc = 0;
+				for (let o = 0; o < this.heightMapConfig.octaves; o++) {
+					acc += 1 / Math.pow(2, o);
+					e += this.heightMapNoise(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
 				}
 				e = e / acc;
 				map[x][y] = Math.pow(e, 1);
@@ -52,20 +102,25 @@ export default class GridMapGenerator {
 	}
 
 	private drawGridMap(shouldRegenerate?: boolean): void {
-		const ctx = this.get2DCanvas("map", this.config);
+		const ctx = this.get2DCanvas("map", this.heightMapConfig);
 		this.createHeightMap(shouldRegenerate);
-		for (let i = 0; i < this.config.width; i++) {
-			for (let j = 0; j < this.config.height; j++) {
+		for (let i = 0; i < this.heightMapConfig.width; i++) {
+			for (let j = 0; j < this.heightMapConfig.height; j++) {
 				ctx.beginPath();
-				ctx.rect(i * this.config.tilesize + i * this.config.gap, j * this.config.tilesize + j * this.config.gap, this.config.tilesize, this.config.tilesize);
+				ctx.rect(
+					i * this.heightMapConfig.tilesize + i * this.heightMapConfig.gap,
+					j * this.heightMapConfig.tilesize + j * this.heightMapConfig.gap,
+					this.heightMapConfig.tilesize,
+					this.heightMapConfig.tilesize
+				);
 				ctx.fillStyle = this.chooseColor(this.heightMap[i][j]);
 				ctx.fill();
 			}
 		}
 	}
 
-	private drawRawMap(rawMap: number[][], width: number, height: number, tilesize: number, octaves: number): void {
-		const ctx = this.get2DCanvas("raw-map", { width, height, tilesize, gap: 0, frequency: 0, octaves });
+	private drawRawMap(name: string, rawMap: number[][], width: number, height: number, tilesize: number, octaves: number): void {
+		const ctx = this.get2DCanvas(name, { width, height, tilesize, gap: 0, frequency: 0, octaves });
 		for (let i = 0; i < rawMap.length; i++) {
 			for (let j = 0; j < rawMap[i].length; j++) {
 				ctx.beginPath();
@@ -99,9 +154,14 @@ export default class GridMapGenerator {
 		return ctx;
 	}
 
-
-	private scaleBetween(unscaledNum: number, minAllowed: number, maxAllowed: number, min: number, max: number): number {
-		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+	private scaleBetween(
+		unscaledNum: number,
+		minAllowed: number,
+		maxAllowed: number,
+		min: number,
+		max: number
+	): number {
+		return ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed;
 	}
 
 	private blackAndWhiteColors(value: number): string {
