@@ -28,7 +28,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.width"
+										v-model.lazy="config.width"
 										id="width"
 										min="0"
 										max="1024"
@@ -45,7 +45,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.height"
+										v-model.lazy="config.height"
 										id="height"
 										min="0"
 										max="1024"
@@ -62,7 +62,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.frequency"
+										v-model.lazy="config.frequency"
 										id="frequency"
 										min="0"
 										max="1024"
@@ -79,7 +79,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.tilesize"
+										v-model.lazy="config.tilesize"
 										id="tilesize"
 										min="0"
 										max="1024"
@@ -96,7 +96,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.gap"
+										v-model.lazy="config.gap"
 										id="gap"
 										min="0"
 										max="1024"
@@ -113,7 +113,7 @@
 									<input
 										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
-										v-model.number="config.octaves"
+										v-model.lazy="config.octaves"
 										id="octaves"
 										min="0"
 										max="1024"
@@ -145,7 +145,7 @@
 										<input
 											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="color"
-											v-model="colorRangeValue.color"
+											v-model.lazy="colorRangeValue.color"
 											:id="`color-${i}`"
 											:name="`color-${i}`"
 											required
@@ -174,7 +174,7 @@
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
 											type="number"
-											v-model.number="colorRangeValue.min"
+											v-model.lazy="colorRangeValue.min"
 											:id="`min-${i}`"
 											:name="`min-${i}`"
 											placeholder="Min..."
@@ -192,7 +192,7 @@
 										<input
 											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
 											type="number"
-											v-model.number="colorRangeValue.max"
+											v-model.lazy="colorRangeValue.max"
 											:id="`max-${i}`"
 											:name="`max-${i}`"
 											placeholder="Max..."
@@ -342,7 +342,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
-const config = reactive<Config>({ width: 64, height: 64, frequency: 2, tilesize: 8, gap: 2, octaves: 3 });
+const config = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
 const newColorRange = ref<ColorRange>({
 	name: "",
 	color: "#000000",
