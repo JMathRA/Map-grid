@@ -10,23 +10,23 @@
 				<canvas id="map"></canvas>
 			</div>
 		</section>
-		<section class="sidebar bg-stone-200 dark:bg-stone-800 p-8 h-full">
-			<div class="flex flex-col h-full overflow-y-scroll">
-				<div>
+		<section class="sidebar bg-stone-200 dark:bg-stone-800 py-8 h-full">
+			<div class="flex flex-col h-full justify-between gap-2">
+				<div class="overflow-y-auto px-8">
 					<div class="mb-8">
 						<h1 class="text-center text-3xl font-bold">Gridmap Playground</h1>
 					</div>
 					<div class="mb-6">
 						<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4">
 							<h2 class="mb-2 text-lg font-semibold text-center">Config</h2>
-							<div class="flex flex-row gap-2 justify-center">
+							<div class="grid grid-flow-col-dense grid-rows-1 gap-2 justify-center">
 								<div class="flex flex-col mb-4">
 									<label
 										for="width"
 										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
 									>Width</label>
 									<input
-										class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500"
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
 										v-model.number="config.width"
 										id="width"
@@ -43,7 +43,7 @@
 										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
 									>Height</label>
 									<input
-										class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500"
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 										type="number"
 										v-model.number="config.height"
 										id="height"
@@ -54,43 +54,229 @@
 										required
 									/>
 								</div>
+								<div class="flex flex-col mb-4">
+									<label
+										for="frequency"
+										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+									>Frequency</label>
+									<input
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+										type="number"
+										v-model.number="config.frequency"
+										id="frequency"
+										min="0"
+										max="1024"
+										placeholder="0..."
+										name="frequency"
+										required
+									/>
+								</div>
+								<div class="flex flex-col mb-4">
+									<label
+										for="tilesize"
+										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+									>Tilesize</label>
+									<input
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+										type="number"
+										v-model.number="config.tilesize"
+										id="tilesize"
+										min="0"
+										max="1024"
+										placeholder="0..."
+										name="tilesize"
+										required
+									/>
+								</div>
+								<div class="flex flex-col mb-4">
+									<label
+										for="gap"
+										class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+									>Gap</label>
+									<input
+										class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+										type="number"
+										v-model.number="config.gap"
+										id="gap"
+										min="0"
+										max="1024"
+										placeholder="0..."
+										name="gap"
+										required
+									/>
+								</div>
 							</div>
-							<Button
-								@click="init(config.width, config.height)"
-							>Create new map</Button>
+							<Button @click="generate">Create new map</Button>
 						</div>
 					</div>
 					<div class="mb-6">
-						<!--<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4">
-							<h2 class="mb-2 text-lg font-semibold text-center">Place</h2>
-							<form @submit.prevent="addPlace">
-								<div class="flex flex-col mb-4">
-									<label for="place-name"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300">Name</label>
-									<input
-										class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500"
-										type="text" v-model="place.name" id="place-name" minlength="1"
-										placeholder="Name..." name="place-name" required />
-								</div>
-								<div class="flex flex-col mb-4">
-									<label for="place-tokens"
-										class="mb-1 text-sm text-stone-700 dark:text-stone-300">Tokens</label>
-									<input
-										class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500"
-										type="number" v-model.number="place.tokens" name="place-tokens"
-										id="place-tokens" step="1" min="0" required />
-								</div>
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+							<summary class="flex flex-row justify-between items-center cursor-pointer">
+								<h2 class="text-lg font-semibold">Ranges</h2>
+								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+							</summary>
+							<div class="flex flex-col gap-4 mt-2 mb-6">
 								<div>
-									<Button type="submit">
-										<img src="./assets/plus-light.svg" alt="Plus light icon" />
-										<span class="ml-1">Add</span>
-									</Button>
+									<p class="text-sm text-stone-200">Simplex noise output values are between -1 and 1.</p>
 								</div>
+								<div v-for="(colorRangeValue, i) in colorRangeValues" :key="colorRangeValue.name" class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start">
+									<div class="flex flex-col">
+										<label
+											:for="`color-${i}`"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Color</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="color"
+											v-model="colorRangeValue.color"
+											:id="`color-${i}`"
+											:name="`color-${i}`"
+											required
+										/>
+									</div>
+									<div class="flex flex-col">
+										<label
+											:for="`name-${i}`"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Name</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="text"
+											v-model="colorRangeValue.name"
+											:id="`name-${i}`"
+											:name="`name-${i}`"
+											placeholder="Name..."
+											required
+										/>
+									</div>
+									<div class="flex flex-col">
+										<label
+											:for="`min-${i}`"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Min</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="number"
+											v-model.number="colorRangeValue.min"
+											:id="`min-${i}`"
+											:name="`min-${i}`"
+											placeholder="Min..."
+											min="-1"
+											max="1"
+											step="0.1"
+											required
+										/>
+									</div>
+									<div class="flex flex-col">
+										<label
+											:for="`max-${i}`"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Max</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="number"
+											v-model.number="colorRangeValue.max"
+											:id="`max-${i}`"
+											:name="`max-${i}`"
+											placeholder="Max..."
+											min="-1"
+											max="1"
+											step="0.1"
+											required
+										/>
+									</div>
+									<div class="flex items-end h-16">
+										<Button class="h-10 w-9" @click="removeRange(i)">
+											<img src="./assets/trash.svg" alt="Trash" />
+										</Button>
+									</div>
+								</div>
+							</div>
+							<form class="flex flex-col gap-4 bg-stone-400 dark:bg-stone-600 rounded-xl p-2" @submit.prevent="addNewRange">
+								<div class="grid grid-flow-col-dense grid-rows-1 gap-2">
+									<div class="flex flex-col">
+										<label
+											for="color-new"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Color</label>
+										<input
+											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
+											type="color"
+											v-model="newColorRange.color"
+											id="color-new"
+											name="color-new"
+											required
+										/>
+									</div>
+									<div class="flex flex-col max-w-26">
+										<label
+											for="name-new"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Name</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="text"
+											v-model="newColorRange.name"
+											id="name-new"
+											name="name-new"
+											placeholder="Name..."
+											required
+										/>
+									</div>
+									<div class="flex flex-col max-w-16">
+										<label
+											for="min-new"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Min</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="number"
+											v-model.number="newColorRange.min"
+											id="min-new"
+											name="min-new"
+											placeholder="Min..."
+											min="-1"
+											max="1"
+											step="0.1"
+											required
+										/>
+									</div>
+									<div class="flex flex-col max-w-16">
+										<label
+											:for="`max-new`"
+											class="mb-1 text-sm text-stone-700 dark:text-stone-300"
+										>Max</label>
+										<input
+											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
+											type="number"
+											v-model.number="newColorRange.max"
+											id="max-new"
+											name="max-new"
+											placeholder="Max..."
+											min="-1"
+											max="1"
+											step="0.1"
+											required
+										/>
+									</div>
+								</div>
+								<Button>Add new range</Button>
 							</form>
-						</div>-->
+						</details>
+					</div>
+					<div class="mb-6">
+						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+							<summary class="flex flex-row justify-between items-center cursor-pointer">
+								<h2 class="text-lg font-semibold">Raw map</h2>
+								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+							</summary>
+							<div class="flex flex-col gap-4 mt-2 mb-6">
+								<canvas id="raw-map" class="rounded-sm"></canvas>
+							</div>
+						</details>
 					</div>
 				</div>
-				<div class="flex flex-row gap-x-2 justify-between">
+				<div class="flex flex-row gap-x-2 justify-between pt-4 px-8">
 					<button @click="changeTheme">
 						<img src="./assets/dark.svg" alt="Dark mode" v-if="isDarkMode" />
 						<img src="./assets/light.svg" alt="Light mode" v-else />
@@ -102,43 +288,6 @@
 			</div>
 		</section>
 	</main>
-	<!--<main>
-		<div class="btn">
-			<button @click="init(64, 64, 8)">New map</button>
-		</div>
-		<div class="canvas">
-			<canvas id="map"></canvas>
-			<div>
-				<div>
-					<canvas id="raw-map"></canvas>
-				</div>
-				<div class="flex flex-col gap-4">
-					<div v-for="colorRange in colorRangeValues" :key="colorRange.name">
-						<div class="flex flex-col gap-1">
-							<label :for="colorRange.name">Name:</label>
-							<input
-								type="text"
-								name="name"
-								id="name"
-								class="p-1 rounded-md bg-stone-700 bg-opacity-50"
-								v-model="colorRange.name"
-							/>
-						</div>
-						<div class="flex flex-col gap-1">
-							<label :for="colorRange.name">Color:</label>
-							<input
-								type="color"
-								name="color"
-								id="color"
-								class="p-1 rounded-md bg-stone-700 bg-opacity-50"
-								v-model="colorRange.color"
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>-->
 </template>
 
 <script lang="ts" setup>
@@ -147,11 +296,43 @@ import Button from "./components/Button.vue";
 
 import { init } from "./services/gridmap";
 import type { ColorRange, Config } from "./services/interfaces";
-import { colorRanges } from "./services/gridmap";
+import "normalize.css";
 
-const colorRangeValues = ref<ColorRange[]>(colorRanges);
+const colorRangeValues = reactive<ColorRange[]>([
+	{
+		min: -1,
+		max: 0,
+		color: "#0081C9",
+		name: "water",
+	},
+	{
+		min: 0,
+		max: 0.1,
+		color: "#FFD56F",
+		name: "sand",
+	},
+	{
+		min: 0.1,
+		max: 0.5,
+		color: "#367E18",
+		name: "grass",
+	},
+	{
+		min: 0.5,
+		max: 1,
+		color: "#473C33",
+		name: "rock",
+	},
+]);
 const isDarkMode = ref<boolean | undefined>(undefined);
-const config = reactive<Config>({ width: 64, height: 64 });
+const config = reactive<Config>({ width: 64, height: 64, frequency: 2, tilesize: 8, gap: 2 });
+const newColorRange = ref<ColorRange>({
+	name: "",
+	color: "#000000",
+	min: 0,
+	max: 0,
+});
+const isLoading = ref<boolean>(false);
 
 onMounted(() => {
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -161,12 +342,36 @@ onMounted(() => {
 		document.documentElement.classList.add("light");
 		isDarkMode.value = false;
 	}
-	init(config.width, config.height);
+	isLoading.value = true;
+	init(config, colorRangeValues);
+	isLoading.value = false;
 });
 
 function changeTheme(): void {
 	document.documentElement.classList.toggle("dark");
 	isDarkMode.value = !isDarkMode.value;
+}
+
+function generate(): void {
+	isLoading.value = true;
+	init(config, colorRangeValues);
+	isLoading.value = false;
+}
+
+function addNewRange(): void {
+	colorRangeValues.push(newColorRange.value);
+	init(config, colorRangeValues);
+	newColorRange.value = {
+		name: "",
+		color: "#000000",
+		min: 0,
+		max: 0,
+	};
+}
+
+function removeRange(i: number): void {
+	colorRangeValues.splice(i, 1);
+	init(config, colorRangeValues);
 }
 </script>
 
@@ -205,5 +410,22 @@ function changeTheme(): void {
 			-4.5px 0px 5.1px -1.9px hsl(0deg 0% 73% / 0.2),
 			-8.6px 0.1px 9.7px -2.5px hsl(0deg 0% 73% / 0.2);
 	}
+
+	.sidebar {
+		flex-basis: 25rem;
+		flex-grow: 1;
+		z-index: 998;
+		border-radius: 1rem 0 0 1rem;
+	}
+}
+
+details .arrow-summary {
+	transition: all 0.2s ease-in-out;
+	transform: rotate(-90deg);
+}
+
+details[open] .arrow-summary {
+	transition: all 0.2s ease-in-out;
+	transform: rotate(0deg);
 }
 </style>

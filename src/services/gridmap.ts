@@ -1,34 +1,7 @@
 import { createNoise2D } from "simplex-noise";
-import { ColorRange } from "./interfaces";
+import { ColorRange, Config } from "./interfaces";
 
-export let colorRanges: ColorRange[] = [
-	{
-		min: -1,
-		max: 0,
-		color: "#0081C9",
-		name: "water",
-	},
-	{
-		min: 0,
-		max: 0.1,
-		color: "#FFD56F",
-		name: "sand",
-	},
-	{
-		min: 0.1,
-		max: 0.5,
-		color: "#367E18", // convert to hex color
-		name: "grass",
-	},
-	{
-		min: 0.5,
-		max: 1,
-		color: "#473C33",
-		name: "rock",
-	},
-];
-
-function chooseColor(value: number): string {
+function chooseColor(value: number, colorRanges: ColorRange[]): string {
 	for (const colorRange of colorRanges) {
 		if (value >= colorRange.min && value <= colorRange.max) {
 			return colorRange.color;
@@ -86,13 +59,13 @@ function createHumidityMap(width: number, height: number, frequency: number): nu
 	return map;
 }
 
-function get2DCanvas(name: string, width: number, height: number, tilesize: number): CanvasRenderingContext2D {
+function get2DCanvas(name: string, config: Config): CanvasRenderingContext2D {
 	const canvas = document.getElementById(name) as HTMLCanvasElement | null;
 	if (!canvas) {
 		throw new Error("No canvas element found");
 	}
-	canvas.width = width * tilesize;
-	canvas.height = height * tilesize;
+	canvas.width = config.width * (config.tilesize + config.gap);
+	canvas.height = config.height * (config.tilesize + config.gap);
 	const ctx = canvas.getContext("2d");
 	if (!ctx) {
 		throw new Error("No canvas context found");
@@ -100,14 +73,15 @@ function get2DCanvas(name: string, width: number, height: number, tilesize: numb
 	return ctx;
 }
 
-function drawGridMap(width: number, height: number, tilesize: number): number[][] {
-	const ctx = get2DCanvas("map", width, height, tilesize);
-	const map = createHeightMap(width, height, 2);
-	for (let i = 0; i < width; i++) {
-		for (let j = 0; j < height; j++) {
+function drawGridMap(config: Config, colorRanges: ColorRange[]): number[][] {
+	const ctx = get2DCanvas("map", config);
+	const map = createHeightMap(config.width, config.height, config.frequency);
+	const tilesizeCorrector = config.tilesize - 1 > 0 ? config.tilesize - 1 : 1;
+	for (let i = 0; i < config.width; i++) {
+		for (let j = 0; j < config.height; j++) {
 			ctx.beginPath();
-			ctx.rect(i * tilesize, j * tilesize, tilesize - 1, tilesize - 1);
-			ctx.fillStyle = chooseColor(map[i][j]);
+			ctx.rect(i * config.tilesize + i * config.gap, j * config.tilesize + j * config.gap, config.tilesize, config.tilesize);
+			ctx.fillStyle = chooseColor(map[i][j], colorRanges);
 			ctx.fill();
 		}
 	}
@@ -115,7 +89,7 @@ function drawGridMap(width: number, height: number, tilesize: number): number[][
 }
 
 function drawRawMap(rawMap: number[][], width: number, height: number, tilesize: number): void {
-	const ctx = get2DCanvas("raw-map", width, height, tilesize);
+	const ctx = get2DCanvas("raw-map", { width, height, tilesize, gap: 0, frequency: 0 });
 	for (let i = 0; i < rawMap.length; i++) {
 		for (let j = 0; j < rawMap[i].length; j++) {
 			ctx.beginPath();
@@ -126,7 +100,7 @@ function drawRawMap(rawMap: number[][], width: number, height: number, tilesize:
 	}
 }
 
-export function init(width: number, height: number) {
-	const rawMap = drawGridMap(width, height, 8);
-	drawRawMap(rawMap, width, height, 2);
+export function init(config: Config, colorRanges: ColorRange[]) {
+	const rawMap = drawGridMap(config, colorRanges);
+	drawRawMap(rawMap, config.width, config.height, 1);
 }

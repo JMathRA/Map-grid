@@ -8,4 +8,7 @@ export interface ColorRange {
 export interface Config {
 	width: number;
 	height: number;
+	frequency: number;
+	tilesize: number;
+	gap: number;
 }
