@@ -19,8 +19,8 @@ export default class GridMapGenerator {
 	}
 
 	public draw(shouldRegenerate?: boolean): void {
-		this.drawGridMap(shouldRegenerate);
 		this.createMoistureMap();
+		this.drawGridMap(shouldRegenerate);
 		this.drawRawMap(
 			"raw-height-map",
 			this.heightMap,
@@ -113,7 +113,7 @@ export default class GridMapGenerator {
 					this.heightMapConfig.tilesize,
 					this.heightMapConfig.tilesize
 				);
-				ctx.fillStyle = this.chooseColor(this.heightMap[i][j]);
+				ctx.fillStyle = this.chooseColor(this.heightMap[i][j], this.moistureMap[i][j]);
 				ctx.fill();
 			}
 		}
@@ -131,9 +131,9 @@ export default class GridMapGenerator {
 		}
 	}
 
-	private chooseColor(value: number): string {
+	private chooseColor(x: number, y: number): string {
 		for (const colorRange of this.colorRanges) {
-			if (value >= colorRange.min && value <= colorRange.max) {
+			if (x >= colorRange.coordinates[0].x && x <= colorRange.coordinates[1].x && y >= colorRange.coordinates[0].y && y <= colorRange.coordinates[1].y) {
 				return colorRange.color;
 			}
 		}
