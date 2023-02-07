@@ -177,9 +177,6 @@ export default class GridMapGenerator {
 				y <= biome.coordinates[1].y
 			);
 		});
-		if (matchingBiomes.some((biome) => biome.name === "lava")) {
-			console.log("matchingBiomes", matchingBiomes);
-		}
 		return matchingBiomes.at(-1)?.color ?? "black";
 	}
 

@@ -1,7 +1,10 @@
 <template>
 	<Teleport to="body">
 		<Modal @close="closeModal" class="w-sm">
-			<form class="flex flex-col gap-4 bg-slate-300 dark:bg-slate-600 rounded-xl p-2" @submit.prevent="saveRange">
+			<form
+				class="flex flex-col gap-4 bg-slate-300 dark:bg-slate-600 rounded-xl p-2"
+				@submit.prevent="changeBiome"
+			>
 				<div class="flex flex-col gap-4">
 					<div class="flex flex-row justify-center gap-2">
 						<div class="flex flex-col items-center w-1/6">
@@ -308,14 +311,31 @@
 										moisture, the ordinate (Y-axis) the height.
 									</p>
 								</div>
+								<div class="flex flex-row gap-2">
+									<input
+										type="file"
+										id="upload-settings"
+										@change="uploadSettings"
+										class="hidden"
+										accept=".json"
+									/>
+									<Button class="flex flex-row gap-2" @click="triggerInputFile">
+										<span class="text-xs">Upload settings</span>
+										<img src="./assets/upload.svg" alt="Upload" width="18" height="18" />
+									</Button>
+									<Button class="flex flex-row gap-2" @click="saveSettings">
+										<span class="text-xs">Download settings</span>
+										<img src="./assets/download.svg" alt="Download" width="18" height="18" />
+									</Button>
+								</div>
 								<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6 relative">
 									<canvas id="biome-map" class="rounded-md w-3/4 h-3/4"></canvas>
-									<span class="absolute top-0 left-5">1</span>
-									<span class="absolute top-5/11 left-5">0</span>
-									<span class="absolute bottom-0 left-5">-1</span>
-									<span class="absolute -bottom-8 left-12">-1</span>
-									<span class="absolute -bottom-8 left-1/2">0</span>
-									<span class="absolute -bottom-8 right-12">1</span>
+									<span class="absolute top-0 left-5 text-sm font-semibold">1</span>
+									<span class="absolute top-5/11 left-5 text-sm font-semibold">0</span>
+									<span class="absolute bottom-0 left-5 text-sm font-semibold">-1</span>
+									<span class="absolute -bottom-8 left-12 text-sm font-semibold">-1</span>
+									<span class="absolute -bottom-8 left-1/2 text-sm font-semibold">0</span>
+									<span class="absolute -bottom-8 right-12 text-sm font-semibold">1</span>
 								</div>
 								<div class="flex flex-col gap-2">
 									<div
@@ -327,45 +347,47 @@
 										<p>X2, Y2</p>
 									</div>
 									<draggable class="flex flex-col gap-2" :list="biomes">
-										<div
-											v-for="(biome, i) in biomes"
-											:key="biome.id"
-											class="rounded-xl bg-slate-400 dark:bg-slate-600 py-2 px-3"
-										>
+										<TransitionGroup name="list">
 											<div
-												class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-2 items-center"
+												v-for="(biome, i) in biomes"
+												:key="biome.id"
+												class="rounded-xl bg-slate-400 dark:bg-slate-600 py-2 px-3 cursor-move"
 											>
-												<div>
-													<h3 class="text-md font-semibold">{{ biome.name }}</h3>
-												</div>
-												<div>
-													<span
-														class="flex w-6 h-6 rounded-lg border-slate-300 dark:border-slate-400 border-2"
-														:style="`background:${biome.color}`"
-													></span>
-												</div>
-												<div>
-													<p class="font-mono text-xs">
-														({{ biome.coordinates[0].x }}, {{ biome.coordinates[0].y }})
-													</p>
-												</div>
-												<div>
-													<p class="font-mono text-xs">
-														({{ biome.coordinates[1].x }}, {{ biome.coordinates[1].y }})
-													</p>
-												</div>
-												<div>
-													<Button class="h-10 w-9 mb-1" @click="openModal(i)">
-														<img src="./assets/edit.svg" alt="Edit" />
-													</Button>
-												</div>
-												<div>
-													<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
-														<img src="./assets/trash.svg" alt="Trash" />
-													</Button>
+												<div
+													class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-2 items-center"
+												>
+													<div>
+														<h3 class="text-md font-semibold">{{ biome.name }}</h3>
+													</div>
+													<div>
+														<span
+															class="flex w-6 h-6 rounded-lg border-slate-300 dark:border-slate-400 border-2"
+															:style="`background:${biome.color}`"
+														></span>
+													</div>
+													<div>
+														<p class="font-mono text-xs">
+															({{ biome.coordinates[0].x }}, {{ biome.coordinates[0].y }})
+														</p>
+													</div>
+													<div>
+														<p class="font-mono text-xs">
+															({{ biome.coordinates[1].x }}, {{ biome.coordinates[1].y }})
+														</p>
+													</div>
+													<div>
+														<Button class="h-10 w-9 mb-1" @click="openModal(i)">
+															<img src="./assets/edit.svg" alt="Edit" />
+														</Button>
+													</div>
+													<div>
+														<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
+															<img src="./assets/trash.svg" alt="Trash" />
+														</Button>
+													</div>
 												</div>
 											</div>
-										</div>
+										</TransitionGroup>
 									</draggable>
 								</div>
 								<div>
@@ -431,7 +453,9 @@
 						<img src="./assets/dark.svg" alt="Dark mode" v-if="isDarkMode" />
 						<img src="./assets/light.svg" alt="Light mode" v-else />
 					</button>
-					<p class="text-slate-400">Made with ❤️ by <span class="font-semibold">Ekkaia</span></p>
+					<p class="dark:text-slate-400 text-slate-500">
+						Made with ❤️ by <span class="font-semibold">Ekkaia</span>
+					</p>
 				</div>
 			</div>
 		</section>
@@ -446,6 +470,7 @@ import { VueDraggableNext as draggable } from "vue-draggable-next";
 
 import GridMapGenerator from "./services/gridmap";
 import type { Biome, Config, ConfigLight } from "./services/interfaces";
+import { saveAs } from "file-saver";
 import "normalize.css";
 
 const biomes = reactive<Biome[]>([
@@ -566,8 +591,9 @@ function closeModal(): void {
 	dialog?.close();
 }
 
-function saveRange(): void {
-	if (selectedBiomeIndex.value) {
+function changeBiome(): void {
+	console.log(selectedBiomeIndex.value);
+	if (selectedBiomeIndex.value !== undefined) {
 		biomes[selectedBiomeIndex.value].name = editBiome.value.name;
 		biomes[selectedBiomeIndex.value].color = editBiome.value.color;
 		biomes[selectedBiomeIndex.value].coordinates = editBiome.value.coordinates;
@@ -579,6 +605,36 @@ function saveRange(): void {
 		});
 	}
 	closeModal();
+}
+
+function saveSettings(): void {
+	const blob = new Blob([JSON.stringify(biomes)], { type: "application/json;charset=utf-8" });
+	const event = new Date();
+	const options: Intl.DateTimeFormatOptions = {
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	};
+	const date = event.toLocaleString("en", options);
+	saveAs(blob, `gridmap-playground-settings-${date}.json`);
+}
+
+function triggerInputFile(): void {
+	document.getElementById("upload-settings")?.click();
+}
+
+function uploadSettings(): void {
+	const inputFile = document.querySelector("input[type=file]") as HTMLInputElement;
+	const file = inputFile.files?.[0];
+	if (file) {
+		const reader = new FileReader();
+		reader.addEventListener("load", (event) => {
+			biomes.splice(0, biomes.length, ...JSON.parse(event.target?.result as string));
+		});
+		reader.readAsText(file);
+	}
 }
 
 watch(heightMapConfig, () => {
@@ -601,6 +657,22 @@ watch(biomes, () => {
 <style lang="scss" scoped>
 main {
 	overflow-x: hidden;
+}
+
+.list-move,
+.list-enter-active,
+.list-leave-active {
+	transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.list-enter-from,
+.list-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+.list-leave-active {
+	position: absolute;
 }
 
 .dark {

@@ -9,12 +9,15 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"file-saver": "^2.0.5",
 		"normalize.css": "^8.0.1",
 		"simplex-noise": "^4.0.1",
+		"sortablejs": "^1.15.0",
 		"vue": "^3.2.45",
 		"vue-draggable-next": "^2.1.1"
 	},
 	"devDependencies": {
+		"@types/file-saver": "^2.0.5",
 		"@types/node": "^18.11.18",
 		"@vitejs/plugin-vue": "^4.0.0",
 		"sass": "^1.58.0",
