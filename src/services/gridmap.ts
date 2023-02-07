@@ -27,7 +27,6 @@ export default class GridMapGenerator {
 			this.heightMapConfig.width,
 			this.heightMapConfig.height,
 			1,
-			this.heightMapConfig.octaves
 		);
 		this.drawRawMap(
 			"raw-moisture-map",
@@ -35,8 +34,30 @@ export default class GridMapGenerator {
 			this.heightMapConfig.width,
 			this.heightMapConfig.height,
 			1,
-			this.moistureMapConfig.octaves
 		);
+	}
+
+	public drawColorRanges(): void {
+		const tilesize = 1;
+		const gap = 0;
+		const width = 100;
+		const height = 100;
+		const ctx = this.get2DCanvas("biome-map", width, height, tilesize, gap);
+		ctx.translate(0, height);
+		ctx.scale(1, -1);
+		const scalePos = (x: number) => this.scaleBetween(x, 0, width, -1, 1);
+		const scaleSize = (x: number) => this.scaleBetween(x, 0, width, 0, 2);
+		for (let i = 0; i < this.colorRanges.length; i++) {
+			ctx.beginPath();
+			ctx.rect(
+				scalePos(this.colorRanges[i].coordinates[0].x),
+				scalePos(this.colorRanges[i].coordinates[0].y),
+				Math.abs(scaleSize(this.colorRanges[i].coordinates[1].x - this.colorRanges[i].coordinates[0].x)),
+				Math.abs(scaleSize(this.colorRanges[i].coordinates[1].y - this.colorRanges[i].coordinates[0].y)),
+			);
+			ctx.fillStyle = this.colorRanges[i].color;
+			ctx.fill();
+		}
 	}
 
 	public setColorRanges(colorRanges: ColorRange[]): void {
@@ -102,7 +123,13 @@ export default class GridMapGenerator {
 	}
 
 	private drawGridMap(shouldRegenerate?: boolean): void {
-		const ctx = this.get2DCanvas("map", this.heightMapConfig);
+		const ctx = this.get2DCanvas(
+			"map",
+			this.heightMapConfig.width,
+			this.heightMapConfig.height,
+			this.heightMapConfig.tilesize,
+			this.heightMapConfig.gap
+		);
 		this.createHeightMap(shouldRegenerate);
 		for (let i = 0; i < this.heightMapConfig.width; i++) {
 			for (let j = 0; j < this.heightMapConfig.height; j++) {
@@ -119,8 +146,14 @@ export default class GridMapGenerator {
 		}
 	}
 
-	private drawRawMap(name: string, rawMap: number[][], width: number, height: number, tilesize: number, octaves: number): void {
-		const ctx = this.get2DCanvas(name, { width, height, tilesize, gap: 0, frequency: 0, octaves });
+	private drawRawMap(
+		name: string,
+		rawMap: number[][],
+		width: number,
+		height: number,
+		tilesize: number,
+	): void {
+		const ctx = this.get2DCanvas(name, width, height, tilesize, 0);
 		for (let i = 0; i < rawMap.length; i++) {
 			for (let j = 0; j < rawMap[i].length; j++) {
 				ctx.beginPath();
@@ -133,20 +166,31 @@ export default class GridMapGenerator {
 
 	private chooseColor(x: number, y: number): string {
 		for (const colorRange of this.colorRanges) {
-			if (x >= colorRange.coordinates[0].x && x <= colorRange.coordinates[1].x && y >= colorRange.coordinates[0].y && y <= colorRange.coordinates[1].y) {
+			if (
+				x >= colorRange.coordinates[0].x &&
+				x <= colorRange.coordinates[1].x &&
+				y >= colorRange.coordinates[0].y &&
+				y <= colorRange.coordinates[1].y
+			) {
 				return colorRange.color;
 			}
 		}
 		return "black";
 	}
 
-	private get2DCanvas(name: string, config: Config): CanvasRenderingContext2D {
+	private get2DCanvas(
+		name: string,
+		width: number,
+		height: number,
+		tilesize: number,
+		gap: number
+	): CanvasRenderingContext2D {
 		const canvas = document.getElementById(name) as HTMLCanvasElement | null;
 		if (!canvas) {
 			throw new Error("No canvas element found");
 		}
-		canvas.width = config.width * (config.tilesize + config.gap);
-		canvas.height = config.height * (config.tilesize + config.gap);
+		canvas.width = width * (tilesize + gap);
+		canvas.height = height * (tilesize + gap);
 		const ctx = canvas.getContext("2d");
 		if (!ctx) {
 			throw new Error("No canvas context found");
