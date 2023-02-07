@@ -6,13 +6,13 @@
 					<div class="flex flex-row justify-center gap-2">
 						<div class="flex flex-col items-center w-1/6">
 							<label for="color-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Color</label>
-							<input type="color" v-model="editColorRange.color" id="color-new" name="color-new" required />
+							<input type="color" v-model="editBiome.color" id="color-new" name="color-new" required />
 						</div>
 						<div class="flex flex-col items-center">
 							<label for="name-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Name</label>
 							<input
 								type="text"
-								v-model="editColorRange.name"
+								v-model="editBiome.name"
 								id="name-new"
 								name="name-new"
 								placeholder="Name..."
@@ -22,10 +22,12 @@
 					</div>
 					<div class="flex flex-row justify-center gap-2">
 						<div class="flex flex-col items-center">
-							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Point 1, X</label>
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 1, X</label
+							>
 							<input
 								type="number"
-								v-model="editColorRange.coordinates[0].x"
+								v-model.number="editBiome.coordinates[0].x"
 								id="x1-new"
 								name="x1-new"
 								placeholder="X1..."
@@ -36,10 +38,12 @@
 							/>
 						</div>
 						<div class="flex flex-col items-center">
-							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Point 1, Y</label>
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 1, Y</label
+							>
 							<input
 								type="number"
-								v-model="editColorRange.coordinates[0].y"
+								v-model.number="editBiome.coordinates[0].y"
 								id="y1-new"
 								name="y1-new"
 								placeholder="Y1..."
@@ -52,10 +56,12 @@
 					</div>
 					<div class="flex flex-row justify-center gap-2">
 						<div class="flex flex-col items-center">
-							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Point 2, X</label>
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 2, X</label
+							>
 							<input
 								type="number"
-								v-model="editColorRange.coordinates[1].x"
+								v-model.number="editBiome.coordinates[1].x"
 								id="x2-new"
 								name="x2-new"
 								placeholder="X2..."
@@ -66,10 +72,12 @@
 							/>
 						</div>
 						<div class="flex flex-col items-center">
-							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Point 2, Y</label>
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 2, Y</label
+							>
 							<input
 								type="number"
-								v-model="editColorRange.coordinates[1].y"
+								v-model.number="editBiome.coordinates[1].y"
 								id="y2-new"
 								name="y2-new"
 								placeholder="Y2..."
@@ -97,7 +105,26 @@
 				<canvas id="map"></canvas>
 			</div>
 		</section>
-		<section class="sidebar bg-slate-200 dark:bg-slate-800 py-8 h-full">
+		<section
+			:class="['sidebar bg-slate-200 dark:bg-slate-800 py-8 h-full relative', { 'hide-sidebar': isSidebarOpen }]"
+		>
+			<div class="absolute -left-12 top-10">
+				<button @click="isSidebarOpen = !isSidebarOpen" :class="{ 'menu-rotate': isSidebarOpen }">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M13 17l5-5-5-5M6 17l5-5-5-5" />
+					</svg>
+				</button>
+			</div>
 			<div class="flex flex-col h-full justify-between gap-2">
 				<div class="overflow-y-auto px-8">
 					<div class="mb-8">
@@ -276,8 +303,9 @@
 							</summary>
 							<div class="flex flex-col gap-4 mt-2 mb-6">
 								<div>
-									<p class="text-sm text-slate-600 dark:text-slate-200">
-										Simplex noise output values are between -1 and 1. The abscissa (X-axis) is the humidity, the ordinate (Y-axis) the height.
+									<p class="text-sm text-slate-600 dark:text-slate-300">
+										Simplex noise output values are between -1 and 1. The abscissa (X-axis) is the
+										moisture, the ordinate (Y-axis) the height.
 									</p>
 								</div>
 								<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6 relative">
@@ -291,52 +319,54 @@
 								</div>
 								<div class="flex flex-col gap-2">
 									<div
-										v-for="(colorRangeValue, i) in colorRangeValues"
-										:key="colorRangeValue.name"
-										class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start"
+										class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-4 text-slate-600 dark:text-slate-300 text-xs"
 									>
-										<div class="flex flex-col items-center">
-											<label
-												:for="`color-${i}`"
-												class="mb-1 text-xs text-slate-700 dark:text-slate-300"
-												>Color</label
-											>
-											<input
-												type="color"
-												v-model.lazy="colorRangeValue.color"
-												:id="`color-${i}`"
-												:name="`color-${i}`"
-												disabled
-												required
-											/>
-										</div>
-										<div class="flex flex-col items-center">
-											<label
-												:for="`name-${i}`"
-												class="mb-1 text-xs text-slate-700 dark:text-slate-300"
-												>Name</label
-											>
-											<input
-												type="text"
-												v-model.lazy="colorRangeValue.name"
-												:id="`name-${i}`"
-												:name="`name-${i}`"
-												placeholder="Name..."
-												disabled
-												required
-											/>
-										</div>
-										<div class="flex items-end h-16">
-											<Button class="h-10 w-9 mb-1" @click="openModal(i)">
-												<img src="./assets/edit.svg" alt="Edit" />
-											</Button>
-										</div>
-										<div class="flex items-end h-16">
-											<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
-												<img src="./assets/trash.svg" alt="Trash" />
-											</Button>
-										</div>
+										<p class="text-center">Name</p>
+										<p>Color</p>
+										<p class="text-center">X1, Y1</p>
+										<p>X2, Y2</p>
 									</div>
+									<draggable class="flex flex-col gap-2" :list="biomes">
+										<div
+											v-for="(biome, i) in biomes"
+											:key="biome.id"
+											class="rounded-xl bg-slate-400 dark:bg-slate-600 py-2 px-3"
+										>
+											<div
+												class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-2 items-center"
+											>
+												<div>
+													<h3 class="text-md font-semibold">{{ biome.name }}</h3>
+												</div>
+												<div>
+													<span
+														class="flex w-6 h-6 rounded-lg border-slate-300 dark:border-slate-400 border-2"
+														:style="`background:${biome.color}`"
+													></span>
+												</div>
+												<div>
+													<p class="font-mono text-xs">
+														({{ biome.coordinates[0].x }}, {{ biome.coordinates[0].y }})
+													</p>
+												</div>
+												<div>
+													<p class="font-mono text-xs">
+														({{ biome.coordinates[1].x }}, {{ biome.coordinates[1].y }})
+													</p>
+												</div>
+												<div>
+													<Button class="h-10 w-9 mb-1" @click="openModal(i)">
+														<img src="./assets/edit.svg" alt="Edit" />
+													</Button>
+												</div>
+												<div>
+													<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
+														<img src="./assets/trash.svg" alt="Trash" />
+													</Button>
+												</div>
+											</div>
+										</div>
+									</draggable>
 								</div>
 								<div>
 									<Button @click="openModal(-1)" class="gap-2">
@@ -412,12 +442,13 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import Button from "./components/Button.vue";
 import Modal from "./components/Modal.vue";
+import { VueDraggableNext as draggable } from "vue-draggable-next";
 
 import GridMapGenerator from "./services/gridmap";
-import type { ColorRange, Config, ConfigLight } from "./services/interfaces";
+import type { Biome, Config, ConfigLight } from "./services/interfaces";
 import "normalize.css";
 
-const colorRangeValues = reactive<ColorRange[]>([
+const biomes = reactive<Biome[]>([
 	{
 		coordinates: [
 			{ x: -1, y: -1 },
@@ -425,6 +456,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 		],
 		color: "#0081C9",
 		name: "water",
+		id: 0,
 	},
 	{
 		coordinates: [
@@ -433,6 +465,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 		],
 		color: "#FFD56F",
 		name: "sand",
+		id: 1,
 	},
 	{
 		coordinates: [
@@ -441,6 +474,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 		],
 		color: "#367E18",
 		name: "grass",
+		id: 2,
 	},
 	{
 		coordinates: [
@@ -449,6 +483,7 @@ const colorRangeValues = reactive<ColorRange[]>([
 		],
 		color: "#264d16",
 		name: "forest",
+		id: 3,
 	},
 	{
 		coordinates: [
@@ -457,13 +492,14 @@ const colorRangeValues = reactive<ColorRange[]>([
 		],
 		color: "#473C33",
 		name: "rock",
+		id: 4,
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
 const heightMapConfig = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
 const moistureMapConfig = reactive<ConfigLight>({ frequency: 2, octaves: 3 });
-const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, colorRangeValues);
-const editColorRange = ref<ColorRange>({
+const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, biomes);
+const editBiome = ref<Omit<Biome, "id">>({
 	name: "",
 	color: "#000000",
 	coordinates: [
@@ -471,7 +507,8 @@ const editColorRange = ref<ColorRange>({
 		{ x: 0, y: 0 },
 	],
 });
-const selectedColorRange = ref<number | undefined>(undefined);
+const selectedBiomeIndex = ref<number | undefined>(undefined);
+const isSidebarOpen = ref<boolean>(false);
 
 onMounted(() => {
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -495,16 +532,23 @@ function generate(): void {
 }
 
 function removeRange(i: number): void {
-	colorRangeValues.splice(i, 1);
-	gridMapGenerator.drawColorRanges();
+	biomes.splice(i, 1);
 }
 
-function openModal(i?: number): void {
+function openModal(i: number): void {
 	if (i !== -1) {
-		selectedColorRange.value = i;
-		Object.assign(editColorRange.value, colorRangeValues[i]);
+		selectedBiomeIndex.value = i;
+		editBiome.value = {
+			name: biomes[i].name,
+			color: biomes[i].color,
+			coordinates: [
+				{ x: biomes[i].coordinates[0].x, y: biomes[i].coordinates[0].y },
+				{ x: biomes[i].coordinates[1].x, y: biomes[i].coordinates[1].y },
+			],
+		};
 	} else {
-		editColorRange.value = {
+		selectedBiomeIndex.value = undefined;
+		editBiome.value = {
 			name: "",
 			color: "#000000",
 			coordinates: [
@@ -523,16 +567,18 @@ function closeModal(): void {
 }
 
 function saveRange(): void {
-	console.log(selectedColorRange.value);
-	if (selectedColorRange.value) {
-		colorRangeValues[selectedColorRange.value] = editColorRange.value;
-		selectedColorRange.value = undefined;
+	if (selectedBiomeIndex.value) {
+		biomes[selectedBiomeIndex.value].name = editBiome.value.name;
+		biomes[selectedBiomeIndex.value].color = editBiome.value.color;
+		biomes[selectedBiomeIndex.value].coordinates = editBiome.value.coordinates;
+		selectedBiomeIndex.value = undefined;
 	} else {
-		colorRangeValues.push(editColorRange.value);
-		console.log(colorRangeValues);
+		biomes.push({
+			...editBiome.value,
+			id: Math.max(...biomes.map((c) => c.id)) + 1,
+		});
 	}
 	closeModal();
-	gridMapGenerator.drawColorRanges();
 }
 
 watch(heightMapConfig, () => {
@@ -545,13 +591,18 @@ watch(moistureMapConfig, () => {
 	gridMapGenerator.draw(false);
 });
 
-watch(colorRangeValues, () => {
-	gridMapGenerator.setColorRanges(colorRangeValues);
+watch(biomes, () => {
+	gridMapGenerator.setColorRanges(biomes);
+	gridMapGenerator.drawColorRanges();
 	gridMapGenerator.draw(false);
 });
 </script>
 
 <style lang="scss" scoped>
+main {
+	overflow-x: hidden;
+}
+
 .dark {
 	.layout {
 		.sidebar,
@@ -566,13 +617,12 @@ watch(colorRangeValues, () => {
 .layout {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	height: 100vh;
 
 	.content {
 		flex-basis: 0;
 		flex-grow: 999;
-		min-width: 50%;
 		height: 100%;
 	}
 
@@ -588,6 +638,36 @@ watch(colorRangeValues, () => {
 		flex-grow: 1;
 		z-index: 998;
 		border-radius: 1rem 0 0 1rem;
+		animation: show 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+
+		&.hide-sidebar {
+			animation: hide 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+		}
+	}
+
+	.menu-rotate {
+		transform: rotate(180deg);
+		animation: transform 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+	}
+}
+
+@keyframes hide {
+	0% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(28rem);
+	}
+}
+
+@keyframes show {
+	0% {
+		transform: translateX(28rem);
+	}
+
+	100% {
+		transform: translateX(0);
 	}
 }
 
@@ -606,7 +686,7 @@ canvas {
 }
 
 input {
-	@apply rounded-lg text-slate-900 py-1 px-3 bg-slate-200 dark:bg-slate-300 placeholder-slate-500 h-10 w-full;
+	@apply rounded-lg text-slate-900 py-1 px-3 bg-slate-200 dark: bg-slate-300 placeholder-slate-500 h-10 w-full;
 
 	&[type="color"] {
 		@apply p-1;
@@ -617,11 +697,11 @@ input {
 	}
 
 	&:disabled {
-		@apply text-slate-700 bg-slate-400 dark:bg-slate-400 select-none cursor-not-allowed;
+		@apply text-slate-700 bg-slate-400 dark: bg-slate-400 select-none cursor-not-allowed;
 	}
 }
 
 label {
-	@apply text-xs text-slate-800 dark:text-slate-300;
+	@apply text-xs text-slate-800 dark: text-slate-300;
 }
 </style>

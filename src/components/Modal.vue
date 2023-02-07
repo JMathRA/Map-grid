@@ -3,7 +3,8 @@
 		<dialog
 			class="fixed m-0 top-4 left-4 bg-slate-200 dark:bg-slate-800 rounded-2xl text-slate-900 dark:text-slate-300"
 		>
-			<div class="flex justify-end mb-4">
+			<div class="flex justify-between items-center mb-4">
+				<p class="text-sm dark:text-slate-400 text-slate-800">You can press Escape to close</p>
 				<div>
 					<Button @click="close">
 						<img src="@/assets/close.svg" alt="Close" />

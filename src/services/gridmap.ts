@@ -1,8 +1,8 @@
 import { createNoise2D } from "simplex-noise";
-import { ColorRange, Config, ConfigLight } from "./interfaces";
+import { Biome, Config, ConfigLight, Point } from "./interfaces";
 
 export default class GridMapGenerator {
-	private colorRanges: ColorRange[];
+	private biomes: Biome[];
 	// HEIGHT MAP
 	private heightMapConfig: Config;
 	private heightMap: number[][] = [];
@@ -12,13 +12,13 @@ export default class GridMapGenerator {
 	private moistureMap: number[][] = [];
 	private moistureMapNoise: ((x: number, y: number) => number) | undefined;
 
-	constructor(heightMapConfig: Config, moistureMapConfig: ConfigLight, colorRanges: ColorRange[]) {
+	constructor(heightMapConfig: Config, moistureMapConfig: ConfigLight, biomes: Biome[]) {
 		this.heightMapConfig = heightMapConfig;
 		this.moistureMapConfig = moistureMapConfig;
-		this.colorRanges = colorRanges;
+		this.biomes = biomes;
 	}
 
-	public draw(shouldRegenerate?: boolean): void {
+	public draw(shouldRegenerate: boolean): void {
 		this.createMoistureMap();
 		this.drawGridMap(shouldRegenerate);
 		this.drawRawMap(
@@ -47,21 +47,25 @@ export default class GridMapGenerator {
 		ctx.scale(1, -1);
 		const scalePos = (x: number) => this.scaleBetween(x, 0, width, -1, 1);
 		const scaleSize = (x: number) => this.scaleBetween(x, 0, width, 0, 2);
-		for (let i = 0; i < this.colorRanges.length; i++) {
+		for (const biome of this.biomes) {
 			ctx.beginPath();
 			ctx.rect(
-				scalePos(this.colorRanges[i].coordinates[0].x),
-				scalePos(this.colorRanges[i].coordinates[0].y),
-				Math.abs(scaleSize(this.colorRanges[i].coordinates[1].x - this.colorRanges[i].coordinates[0].x)),
-				Math.abs(scaleSize(this.colorRanges[i].coordinates[1].y - this.colorRanges[i].coordinates[0].y)),
+				scalePos(biome.coordinates[0].x),
+				scalePos(biome.coordinates[0].y),
+				Math.abs(scaleSize(biome.coordinates[1].x - biome.coordinates[0].x)),
+				Math.abs(scaleSize(biome.coordinates[1].y - biome.coordinates[0].y)),
 			);
-			ctx.fillStyle = this.colorRanges[i].color;
+			ctx.fillStyle = biome.color;
 			ctx.fill();
 		}
 	}
 
-	public setColorRanges(colorRanges: ColorRange[]): void {
-		this.colorRanges = colorRanges;
+	public dist(p1: Point, p2: Point): number {
+		return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+	}
+
+	public setColorRanges(biomes: Biome[]): void {
+		this.biomes = biomes;
 	}
 
 	public setHeightMapConfig(config: Config): void {
@@ -86,17 +90,17 @@ export default class GridMapGenerator {
 				let e = 0;
 				let acc = 0;
 				for (let o = 0; o < this.moistureMapConfig.octaves; o++) {
-					acc += 1 / Math.pow(2, o);
-					e += this.moistureMapNoise(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
+					acc += 1 / 2 ** o;
+					e += this.moistureMapNoise((2 ** o) * nx, (2 ** o) * ny) / (2 ** o);
 				}
 				e = e / acc;
-				map[x][y] = Math.pow(e, 1);
+				map[x][y] = e ** 1;
 			}
 		}
 		this.moistureMap = map;
 	}
 
-	private createHeightMap(shouldRegenerate?: boolean): void {
+	private createHeightMap(shouldRegenerate: boolean): void {
 		const map: number[][] = [];
 		if (shouldRegenerate || !this.heightMapNoise) {
 			this.heightMapNoise = createNoise2D();
@@ -122,7 +126,7 @@ export default class GridMapGenerator {
 		this.heightMap = map;
 	}
 
-	private drawGridMap(shouldRegenerate?: boolean): void {
+	private drawGridMap(shouldRegenerate: boolean): void {
 		const ctx = this.get2DCanvas(
 			"map",
 			this.heightMapConfig.width,
@@ -165,17 +169,18 @@ export default class GridMapGenerator {
 	}
 
 	private chooseColor(x: number, y: number): string {
-		for (const colorRange of this.colorRanges) {
-			if (
-				x >= colorRange.coordinates[0].x &&
-				x <= colorRange.coordinates[1].x &&
-				y >= colorRange.coordinates[0].y &&
-				y <= colorRange.coordinates[1].y
-			) {
-				return colorRange.color;
-			}
+		const matchingBiomes: Biome[] = this.biomes.filter(biome => {
+			return (
+				x >= biome.coordinates[0].x &&
+				x <= biome.coordinates[1].x &&
+				y >= biome.coordinates[0].y &&
+				y <= biome.coordinates[1].y
+			);
+		});
+		if (matchingBiomes.some((biome) => biome.name === "lava")) {
+			console.log("matchingBiomes", matchingBiomes);
 		}
-		return "black";
+		return matchingBiomes.at(-1)?.color ?? "black";
 	}
 
 	private get2DCanvas(
