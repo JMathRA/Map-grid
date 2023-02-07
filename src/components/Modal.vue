@@ -1,26 +1,58 @@
 <template>
 	<Transition name="slide-fade">
 		<dialog
-            v-if="open"
-			open
-			class="fixed m-0 top-4 left-4 bg-stone-200 dark:bg-stone-800 rounded-2xl text-stone-900 dark:text-stone-300"
+			class="fixed m-0 top-4 left-4 bg-slate-200 dark:bg-slate-800 rounded-2xl text-slate-900 dark:text-slate-300"
 		>
-			<p>
-				{{ text }}<span class="ml-2">{{ !isError ? "✅" : "❌" }}</span>
-			</p>
+			<div class="flex justify-between items-center mb-4">
+				<p class="text-sm dark:text-slate-400 text-slate-800">You can press Escape to close</p>
+				<div>
+					<Button @click="close">
+						<img src="@/assets/close.svg" alt="Close" />
+					</Button>
+				</div>
+			</div>
+			<slot />
 		</dialog>
 	</Transition>
 </template>
 
-<script setup lang="ts">
-defineProps<{
-	open: boolean;
-	text: string;
-	isError: boolean;
-}>();
+<script lang="ts" setup>
+import Button from "./Button.vue";
+
+const emit = defineEmits(["close"]);
+
+function close() {
+	emit("close");
+}
 </script>
 
 <style lang="scss" scoped>
+dialog {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.6);
+	}
+}
+
+dialog[open] {
+	animation: show 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes show {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 0%);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+
 .slide-fade-enter-active {
 	transition: all 0.15s ease-out;
 }

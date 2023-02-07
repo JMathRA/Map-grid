@@ -1,8 +1,103 @@
 <template>
-	<main class="layout bg-stone-100 dark:bg-stone-600 text-stone-900 dark:text-stone-100 overflow-y-hidden">
+	<Teleport to="body">
+		<Modal @close="closeModal" class="w-sm">
+			<form class="flex flex-col gap-4 bg-slate-300 dark:bg-slate-600 rounded-xl p-2" @submit.prevent="saveRange">
+				<div class="flex flex-col gap-4">
+					<div class="flex flex-row justify-center gap-2">
+						<div class="flex flex-col items-center w-1/6">
+							<label for="color-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Color</label>
+							<input type="color" v-model="editBiome.color" id="color-new" name="color-new" required />
+						</div>
+						<div class="flex flex-col items-center">
+							<label for="name-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300">Name</label>
+							<input
+								type="text"
+								v-model="editBiome.name"
+								id="name-new"
+								name="name-new"
+								placeholder="Name..."
+								required
+							/>
+						</div>
+					</div>
+					<div class="flex flex-row justify-center gap-2">
+						<div class="flex flex-col items-center">
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 1, X</label
+							>
+							<input
+								type="number"
+								v-model.number="editBiome.coordinates[0].x"
+								id="x1-new"
+								name="x1-new"
+								placeholder="X1..."
+								min="-1"
+								max="1"
+								step="0.1"
+								required
+							/>
+						</div>
+						<div class="flex flex-col items-center">
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 1, Y</label
+							>
+							<input
+								type="number"
+								v-model.number="editBiome.coordinates[0].y"
+								id="y1-new"
+								name="y1-new"
+								placeholder="Y1..."
+								min="-1"
+								max="1"
+								step="0.1"
+								required
+							/>
+						</div>
+					</div>
+					<div class="flex flex-row justify-center gap-2">
+						<div class="flex flex-col items-center">
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 2, X</label
+							>
+							<input
+								type="number"
+								v-model.number="editBiome.coordinates[1].x"
+								id="x2-new"
+								name="x2-new"
+								placeholder="X2..."
+								min="-1"
+								max="1"
+								step="0.1"
+								required
+							/>
+						</div>
+						<div class="flex flex-col items-center">
+							<label for="x1-new" class="mb-1 text-xs text-slate-700 dark:text-slate-300"
+								>Point 2, Y</label
+							>
+							<input
+								type="number"
+								v-model.number="editBiome.coordinates[1].y"
+								id="y2-new"
+								name="y2-new"
+								placeholder="Y2..."
+								min="-1"
+								max="1"
+								step="0.1"
+								required
+							/>
+						</div>
+					</div>
+				</div>
+				<Button>Save</Button>
+			</form>
+		</Modal>
+	</Teleport>
+	<main class="layout bg-slate-100 dark:bg-slate-600 text-slate-900 dark:text-slate-100 overflow-y-hidden">
 		<div class="flex fixed bottom-4 left-4 z-60">
-			<p class="text-stone-700 dark:text-stone-300 text-xs">
-				<a class="underline font-semibold hover:no-underline" href="">Freely accessible on GitLab</a> under the Apache 2.0 Licence
+			<p class="text-slate-700 dark:text-slate-300 text-xs">
+				<a class="underline font-semibold hover:no-underline" href="">Freely accessible on GitLab</a> under the
+				Apache 2.0 Licence
 			</p>
 		</div>
 		<section class="content">
@@ -10,28 +105,56 @@
 				<canvas id="map"></canvas>
 			</div>
 		</section>
-		<section class="sidebar bg-stone-200 dark:bg-stone-800 py-8 h-full">
+		<section
+			:class="['sidebar bg-slate-200 dark:bg-slate-800 py-8 h-full relative', { 'hide-sidebar': isSidebarOpen }]"
+		>
+			<div class="absolute -left-12 top-10">
+				<button @click="isSidebarOpen = !isSidebarOpen" :class="{ 'menu-rotate': isSidebarOpen }">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M13 17l5-5-5-5M6 17l5-5-5-5" />
+					</svg>
+				</button>
+			</div>
 			<div class="flex flex-col h-full justify-between gap-2">
 				<div class="overflow-y-auto px-8">
 					<div class="mb-8">
 						<h1 class="text-center text-3xl font-bold">Gridmap Playground</h1>
 					</div>
 					<div class="mb-6">
-						<div class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4 flex flex-col gap-4">
+						<div class="bg-slate-300 dark:bg-slate-700 rounded-xl p-4 flex flex-col gap-4">
 							<h2 class="text-lg font-semibold text-center">Config</h2>
-							<details class="flex flex-col bg-stone-400 dark:bg-stone-600 rounded-xl p-4" open>
+							<details class="flex flex-col bg-slate-400 dark:bg-slate-600 rounded-xl p-4" open>
 								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 									<h2 class="text-lg font-semibold">Height map</h2>
-									<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+									<svg
+										class="arrow-summary"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M6 9l6 6 6-6" />
+									</svg>
 								</summary>
 								<div class="grid grid-cols-3 grid-rows-2 gap-2 mt-2 justify-center">
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="width"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Width</label>
+										<label for="width">Width</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.width"
 											id="width"
@@ -43,12 +166,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="height"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Height</label>
+										<label for="height">Height</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.height"
 											id="height"
@@ -60,12 +179,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="frequency"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Freq.</label>
+										<label for="frequency">Freq.</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.frequency"
 											id="frequency"
@@ -77,12 +192,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="tilesize"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Tilesize</label>
+										<label for="tilesize">Tilesize</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.tilesize"
 											id="tilesize"
@@ -94,12 +205,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="gap"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Gap</label>
+										<label for="gap">Gap</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.gap"
 											id="gap"
@@ -111,12 +218,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="gap"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Octaves</label>
+										<label for="gap">Octaves</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="heightMapConfig.octaves"
 											id="octaves"
@@ -129,19 +232,28 @@
 									</div>
 								</div>
 							</details>
-							<details class="flex flex-col bg-stone-400 dark:bg-stone-600 rounded-xl p-4" open>
+							<details class="flex flex-col bg-slate-400 dark:bg-slate-600 rounded-xl p-4" open>
 								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 									<h2 class="text-lg font-semibold">Moisture map</h2>
-									<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+									<svg
+										class="arrow-summary"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M6 9l6 6 6-6" />
+									</svg>
 								</summary>
 								<div class="grid grid-cols-2 grid-rows-1 gap-2 mt-2 justify-center">
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="frequency"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Freq.</label>
+										<label for="frequency">Freq.</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="moistureMapConfig.frequency"
 											id="frequency"
@@ -153,12 +265,8 @@
 										/>
 									</div>
 									<div class="flex flex-col items-center gap-1">
-										<label
-											for="gap"
-											class="text-xs text-stone-700 dark:text-stone-300"
-										>Octaves</label>
+										<label for="gap">Octaves</label>
 										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
 											type="number"
 											v-model.lazy="moistureMapConfig.octaves"
 											id="octaves"
@@ -175,165 +283,118 @@
 						</div>
 					</div>
 					<div class="mb-6">
-						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+						<details class="bg-slate-300 dark:bg-slate-700 rounded-xl p-4" open>
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
-								<h2 class="text-lg font-semibold">Ranges</h2>
-								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								<h2 class="text-lg font-semibold">Biomes</h2>
+								<svg
+									class="arrow-summary"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
 							</summary>
 							<div class="flex flex-col gap-4 mt-2 mb-6">
 								<div>
-									<p class="text-sm text-stone-600 dark:text-stone-200">Simplex noise output values are between -1 and 1.</p>
+									<p class="text-sm text-slate-600 dark:text-slate-300">
+										Simplex noise output values are between -1 and 1. The abscissa (X-axis) is the
+										moisture, the ordinate (Y-axis) the height.
+									</p>
 								</div>
-								<div v-for="(colorRangeValue, i) in colorRangeValues.sort((a, b) => a.min - b.min)" :key="colorRangeValue.name" class="grid grid-flow-col-dense grid-rows-1 gap-2 items-start">
-									<div class="flex flex-col items-center">
-										<label
-											:for="`color-${i}`"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Color</label>
-										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-											type="color"
-											v-model.lazy="colorRangeValue.color"
-											:id="`color-${i}`"
-											:name="`color-${i}`"
-											required
-										/>
+								<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6 relative">
+									<canvas id="biome-map" class="rounded-md w-3/4 h-3/4"></canvas>
+									<span class="absolute top-0 left-5">1</span>
+									<span class="absolute top-5/11 left-5">0</span>
+									<span class="absolute bottom-0 left-5">-1</span>
+									<span class="absolute -bottom-8 left-12">-1</span>
+									<span class="absolute -bottom-8 left-1/2">0</span>
+									<span class="absolute -bottom-8 right-12">1</span>
+								</div>
+								<div class="flex flex-col gap-2">
+									<div
+										class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-4 text-slate-600 dark:text-slate-300 text-xs"
+									>
+										<p class="text-center">Name</p>
+										<p>Color</p>
+										<p class="text-center">X1, Y1</p>
+										<p>X2, Y2</p>
 									</div>
-									<div class="flex flex-col items-center">
-										<label
-											:for="`name-${i}`"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Name</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="text"
-											v-model.lazy="colorRangeValue.name"
-											:id="`name-${i}`"
-											:name="`name-${i}`"
-											placeholder="Name..."
-											required
-										/>
-									</div>
-									<div class="flex flex-col items-center">
-										<label
-											:for="`min-${i}`"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Min</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="number"
-											v-model.lazy="colorRangeValue.min"
-											:id="`min-${i}`"
-											:name="`min-${i}`"
-											placeholder="Min..."
-											min="-1"
-											max="1"
-											step="0.1"
-											required
-										/>
-									</div>
-									<div class="flex flex-col items-center">
-										<label
-											:for="`max-${i}`"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Max</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="number"
-											v-model.lazy="colorRangeValue.max"
-											:id="`max-${i}`"
-											:name="`max-${i}`"
-											placeholder="Max..."
-											min="-1"
-											max="1"
-											step="0.1"
-											required
-										/>
-									</div>
-									<div class="flex items-end h-16">
-										<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
-											<img src="./assets/trash.svg" alt="Trash" />
-										</Button>
-									</div>
+									<draggable class="flex flex-col gap-2" :list="biomes">
+										<div
+											v-for="(biome, i) in biomes"
+											:key="biome.id"
+											class="rounded-xl bg-slate-400 dark:bg-slate-600 py-2 px-3"
+										>
+											<div
+												class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-2 items-center"
+											>
+												<div>
+													<h3 class="text-md font-semibold">{{ biome.name }}</h3>
+												</div>
+												<div>
+													<span
+														class="flex w-6 h-6 rounded-lg border-slate-300 dark:border-slate-400 border-2"
+														:style="`background:${biome.color}`"
+													></span>
+												</div>
+												<div>
+													<p class="font-mono text-xs">
+														({{ biome.coordinates[0].x }}, {{ biome.coordinates[0].y }})
+													</p>
+												</div>
+												<div>
+													<p class="font-mono text-xs">
+														({{ biome.coordinates[1].x }}, {{ biome.coordinates[1].y }})
+													</p>
+												</div>
+												<div>
+													<Button class="h-10 w-9 mb-1" @click="openModal(i)">
+														<img src="./assets/edit.svg" alt="Edit" />
+													</Button>
+												</div>
+												<div>
+													<Button class="h-10 w-9 mb-1" @click="removeRange(i)">
+														<img src="./assets/trash.svg" alt="Trash" />
+													</Button>
+												</div>
+											</div>
+										</div>
+									</draggable>
+								</div>
+								<div>
+									<Button @click="openModal(-1)" class="gap-2">
+										<span>Add new biome</span>
+										<img src="./assets/plus.svg" alt="Plus" />
+									</Button>
 								</div>
 							</div>
-							<form class="flex flex-col gap-4 bg-stone-400 dark:bg-stone-600 rounded-xl p-2" @submit.prevent="addNewRange">
-								<div class="grid grid-flow-col-dense grid-rows-1 gap-2">
-									<div class="flex flex-col items-center">
-										<label
-											for="color-new"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Color</label>
-										<input
-											class="rounded-lg text-stone-900 p-1 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 h-10 w-full"
-											type="color"
-											v-model="newColorRange.color"
-											id="color-new"
-											name="color-new"
-											required
-										/>
-									</div>
-									<div class="flex flex-col items-center max-w-26">
-										<label
-											for="name-new"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Name</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="text"
-											v-model="newColorRange.name"
-											id="name-new"
-											name="name-new"
-											placeholder="Name..."
-											required
-										/>
-									</div>
-									<div class="flex flex-col items-center max-w-16">
-										<label
-											for="min-new"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Min</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="number"
-											v-model.number="newColorRange.min"
-											id="min-new"
-											name="min-new"
-											placeholder="Min..."
-											min="-1"
-											max="1"
-											step="0.1"
-											required
-										/>
-									</div>
-									<div class="flex flex-col items-center max-w-16">
-										<label
-											for="max-new"
-											class="mb-1 text-xs text-stone-700 dark:text-stone-300"
-										>Max</label>
-										<input
-											class="rounded-lg text-stone-900 p-2 bg-stone-100 dark:bg-stone-300 placeholder-stone-500 w-full"
-											type="number"
-											v-model.number="newColorRange.max"
-											id="max-new"
-											name="max-new"
-											placeholder="Max..."
-											min="-1"
-											max="1"
-											step="0.1"
-											required
-										/>
-									</div>
-								</div>
-								<Button>Add new range</Button>
-							</form>
 						</details>
 					</div>
 					<div class="mb-6">
-						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+						<details class="bg-slate-300 dark:bg-slate-700 rounded-xl p-4">
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Raw height map</h2>
-								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								<svg
+									class="arrow-summary"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
 							</summary>
 							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
 								<canvas id="raw-height-map" class="rounded-md w-full h-full"></canvas>
@@ -341,10 +402,23 @@
 						</details>
 					</div>
 					<div class="mb-6">
-						<details class="bg-stone-300 dark:bg-stone-700 rounded-xl p-4" open>
+						<details class="bg-slate-300 dark:bg-slate-700 rounded-xl p-4">
 							<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 								<h2 class="text-lg font-semibold">Raw moisture map</h2>
-								<svg class="arrow-summary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" :stroke="isDarkMode ? '#f5f5f4' : '#1c1917'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+								<svg
+									class="arrow-summary"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									:stroke="isDarkMode ? '#f5f5f4' : '#1c1917'"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M6 9l6 6 6-6" />
+								</svg>
 							</summary>
 							<div class="flex flex-col items-center justify-center gap-4 mt-2 mb-6">
 								<canvas id="raw-moisture-map" class="rounded-md w-full h-full"></canvas>
@@ -357,9 +431,7 @@
 						<img src="./assets/dark.svg" alt="Dark mode" v-if="isDarkMode" />
 						<img src="./assets/light.svg" alt="Light mode" v-else />
 					</button>
-					<p class="text-stone-400">
-						Made with ❤️ by <span class="font-semibold">Ekkaia</span>
-					</p>
+					<p class="text-slate-400">Made with ❤️ by <span class="font-semibold">Ekkaia</span></p>
 				</div>
 			</div>
 		</section>
@@ -369,47 +441,74 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch } from "vue";
 import Button from "./components/Button.vue";
+import Modal from "./components/Modal.vue";
+import { VueDraggableNext as draggable } from "vue-draggable-next";
 
 import GridMapGenerator from "./services/gridmap";
-import type { ColorRange, Config, ConfigLight } from "./services/interfaces";
+import type { Biome, Config, ConfigLight } from "./services/interfaces";
 import "normalize.css";
 
-const colorRangeValues = reactive<ColorRange[]>([
+const biomes = reactive<Biome[]>([
 	{
-		min: -1,
-		max: 0,
+		coordinates: [
+			{ x: -1, y: -1 },
+			{ x: 1, y: 0 },
+		],
 		color: "#0081C9",
 		name: "water",
+		id: 0,
 	},
 	{
-		min: 0,
-		max: 0.1,
+		coordinates: [
+			{ x: -1, y: 0 },
+			{ x: 1, y: 0.1 },
+		],
 		color: "#FFD56F",
 		name: "sand",
+		id: 1,
 	},
 	{
-		min: 0.1,
-		max: 0.5,
+		coordinates: [
+			{ x: -1, y: 0.1 },
+			{ x: 0, y: 0.5 },
+		],
 		color: "#367E18",
 		name: "grass",
+		id: 2,
 	},
 	{
-		min: 0.5,
-		max: 1,
+		coordinates: [
+			{ x: 0, y: 0.1 },
+			{ x: 1, y: 0.5 },
+		],
+		color: "#264d16",
+		name: "forest",
+		id: 3,
+	},
+	{
+		coordinates: [
+			{ x: -1, y: 0.5 },
+			{ x: 1, y: 1 },
+		],
 		color: "#473C33",
 		name: "rock",
+		id: 4,
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
 const heightMapConfig = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
 const moistureMapConfig = reactive<ConfigLight>({ frequency: 2, octaves: 3 });
-const newColorRange = ref<ColorRange>({
+const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, biomes);
+const editBiome = ref<Omit<Biome, "id">>({
 	name: "",
 	color: "#000000",
-	min: 0,
-	max: 0,
+	coordinates: [
+		{ x: 0, y: 0 },
+		{ x: 0, y: 0 },
+	],
 });
-const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, colorRangeValues);
+const selectedBiomeIndex = ref<number | undefined>(undefined);
+const isSidebarOpen = ref<boolean>(false);
 
 onMounted(() => {
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -420,6 +519,7 @@ onMounted(() => {
 		isDarkMode.value = false;
 	}
 	gridMapGenerator.draw(true);
+	gridMapGenerator.drawColorRanges();
 });
 
 function changeTheme(): void {
@@ -431,18 +531,54 @@ function generate(): void {
 	gridMapGenerator.draw(true);
 }
 
-function addNewRange(): void {
-	colorRangeValues.push(newColorRange.value);
-	newColorRange.value = {
-		name: "",
-		color: "#000000",
-		min: 0,
-		max: 0,
-	};
+function removeRange(i: number): void {
+	biomes.splice(i, 1);
 }
 
-function removeRange(i: number): void {
-	colorRangeValues.splice(i, 1);
+function openModal(i: number): void {
+	if (i !== -1) {
+		selectedBiomeIndex.value = i;
+		editBiome.value = {
+			name: biomes[i].name,
+			color: biomes[i].color,
+			coordinates: [
+				{ x: biomes[i].coordinates[0].x, y: biomes[i].coordinates[0].y },
+				{ x: biomes[i].coordinates[1].x, y: biomes[i].coordinates[1].y },
+			],
+		};
+	} else {
+		selectedBiomeIndex.value = undefined;
+		editBiome.value = {
+			name: "",
+			color: "#000000",
+			coordinates: [
+				{ x: 0, y: 0 },
+				{ x: 0, y: 0 },
+			],
+		};
+	}
+	const dialog = document.querySelector("dialog");
+	dialog?.showModal();
+}
+
+function closeModal(): void {
+	const dialog = document.querySelector("dialog");
+	dialog?.close();
+}
+
+function saveRange(): void {
+	if (selectedBiomeIndex.value) {
+		biomes[selectedBiomeIndex.value].name = editBiome.value.name;
+		biomes[selectedBiomeIndex.value].color = editBiome.value.color;
+		biomes[selectedBiomeIndex.value].coordinates = editBiome.value.coordinates;
+		selectedBiomeIndex.value = undefined;
+	} else {
+		biomes.push({
+			...editBiome.value,
+			id: Math.max(...biomes.map((c) => c.id)) + 1,
+		});
+	}
+	closeModal();
 }
 
 watch(heightMapConfig, () => {
@@ -455,21 +591,24 @@ watch(moistureMapConfig, () => {
 	gridMapGenerator.draw(false);
 });
 
-watch(colorRangeValues, () => {
-	gridMapGenerator.setColorRanges(colorRangeValues);
+watch(biomes, () => {
+	gridMapGenerator.setColorRanges(biomes);
+	gridMapGenerator.drawColorRanges();
 	gridMapGenerator.draw(false);
 });
 </script>
 
 <style lang="scss" scoped>
+main {
+	overflow-x: hidden;
+}
+
 .dark {
 	.layout {
 		.sidebar,
 		dialog {
-			box-shadow: -0.5px 0px 0.6px hsl(0deg 0% 0% / 0.2),
-				-1.2px 0px 1.3px -0.6px hsl(0deg 0% 0% / 0.2),
-				-2.3px 0px 2.6px -1.2px hsl(0deg 0% 0% / 0.2),
-				-4.5px 0px 5.1px -1.9px hsl(0deg 0% 0% / 0.2),
+			box-shadow: -0.5px 0px 0.6px hsl(0deg 0% 0% / 0.2), -1.2px 0px 1.3px -0.6px hsl(0deg 0% 0% / 0.2),
+				-2.3px 0px 2.6px -1.2px hsl(0deg 0% 0% / 0.2), -4.5px 0px 5.1px -1.9px hsl(0deg 0% 0% / 0.2),
 				-8.6px 0.1px 9.7px -2.5px hsl(0deg 0% 0% / 0.2);
 		}
 	}
@@ -478,22 +617,19 @@ watch(colorRangeValues, () => {
 .layout {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	height: 100vh;
 
 	.content {
 		flex-basis: 0;
 		flex-grow: 999;
-		min-width: 50%;
 		height: 100%;
 	}
 
 	.sidebar,
 	dialog {
-		box-shadow: -0.5px 0px 0.6px hsl(0deg 0% 73% / 0.2),
-			-1.2px 0px 1.3px -0.6px hsl(0deg 0% 73% / 0.2),
-			-2.3px 0px 2.6px -1.2px hsl(0deg 0% 73% / 0.2),
-			-4.5px 0px 5.1px -1.9px hsl(0deg 0% 73% / 0.2),
+		box-shadow: -0.5px 0px 0.6px hsl(0deg 0% 73% / 0.2), -1.2px 0px 1.3px -0.6px hsl(0deg 0% 73% / 0.2),
+			-2.3px 0px 2.6px -1.2px hsl(0deg 0% 73% / 0.2), -4.5px 0px 5.1px -1.9px hsl(0deg 0% 73% / 0.2),
 			-8.6px 0.1px 9.7px -2.5px hsl(0deg 0% 73% / 0.2);
 	}
 
@@ -502,6 +638,36 @@ watch(colorRangeValues, () => {
 		flex-grow: 1;
 		z-index: 998;
 		border-radius: 1rem 0 0 1rem;
+		animation: show 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+
+		&.hide-sidebar {
+			animation: hide 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+		}
+	}
+
+	.menu-rotate {
+		transform: rotate(180deg);
+		animation: transform 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+	}
+}
+
+@keyframes hide {
+	0% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(28rem);
+	}
+}
+
+@keyframes show {
+	0% {
+		transform: translateX(28rem);
+	}
+
+	100% {
+		transform: translateX(0);
 	}
 }
 
@@ -513,5 +679,29 @@ details .arrow-summary {
 details[open] .arrow-summary {
 	transition: all 0.2s ease-in-out;
 	transform: rotate(0deg);
+}
+
+canvas {
+	@apply bg-slate-900;
+}
+
+input {
+	@apply rounded-lg text-slate-900 py-1 px-3 bg-slate-200 dark: bg-slate-300 placeholder-slate-500 h-10 w-full;
+
+	&[type="color"] {
+		@apply p-1;
+	}
+
+	&:focus {
+		@apply outline-none ring-2 ring-slate-500;
+	}
+
+	&:disabled {
+		@apply text-slate-700 bg-slate-400 dark: bg-slate-400 select-none cursor-not-allowed;
+	}
+}
+
+label {
+	@apply text-xs text-slate-800 dark: text-slate-300;
 }
 </style>

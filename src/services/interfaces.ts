@@ -3,12 +3,11 @@ export interface Point {
 	y: number;
 }
 
-export interface ColorRange {
-	min: number;
-	max: number;
-	// coordinates: [Point, Point];
+export interface Biome {
+	coordinates: [Point, Point];
 	color: string;
 	name: string;
+	id: number;
 }
 
 export interface Config {

@@ -11,7 +11,8 @@
 	"dependencies": {
 		"normalize.css": "^8.0.1",
 		"simplex-noise": "^4.0.1",
-		"vue": "^3.2.45"
+		"vue": "^3.2.45",
+		"vue-draggable-next": "^2.1.1"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.18",

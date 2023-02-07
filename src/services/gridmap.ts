@@ -1,8 +1,8 @@
 import { createNoise2D } from "simplex-noise";
-import { ColorRange, Config, ConfigLight } from "./interfaces";
+import { Biome, Config, ConfigLight, Point } from "./interfaces";
 
 export default class GridMapGenerator {
-	private colorRanges: ColorRange[];
+	private biomes: Biome[];
 	// HEIGHT MAP
 	private heightMapConfig: Config;
 	private heightMap: number[][] = [];
@@ -12,22 +12,21 @@ export default class GridMapGenerator {
 	private moistureMap: number[][] = [];
 	private moistureMapNoise: ((x: number, y: number) => number) | undefined;
 
-	constructor(heightMapConfig: Config, moistureMapConfig: ConfigLight, colorRanges: ColorRange[]) {
+	constructor(heightMapConfig: Config, moistureMapConfig: ConfigLight, biomes: Biome[]) {
 		this.heightMapConfig = heightMapConfig;
 		this.moistureMapConfig = moistureMapConfig;
-		this.colorRanges = colorRanges;
+		this.biomes = biomes;
 	}
 
-	public draw(shouldRegenerate?: boolean): void {
-		this.drawGridMap(shouldRegenerate);
+	public draw(shouldRegenerate: boolean): void {
 		this.createMoistureMap();
+		this.drawGridMap(shouldRegenerate);
 		this.drawRawMap(
 			"raw-height-map",
 			this.heightMap,
 			this.heightMapConfig.width,
 			this.heightMapConfig.height,
 			1,
-			this.heightMapConfig.octaves
 		);
 		this.drawRawMap(
 			"raw-moisture-map",
@@ -35,12 +34,38 @@ export default class GridMapGenerator {
 			this.heightMapConfig.width,
 			this.heightMapConfig.height,
 			1,
-			this.moistureMapConfig.octaves
 		);
 	}
 
-	public setColorRanges(colorRanges: ColorRange[]): void {
-		this.colorRanges = colorRanges.sort((a, b) => a.min - b.min);
+	public drawColorRanges(): void {
+		const tilesize = 1;
+		const gap = 0;
+		const width = 100;
+		const height = 100;
+		const ctx = this.get2DCanvas("biome-map", width, height, tilesize, gap);
+		ctx.translate(0, height);
+		ctx.scale(1, -1);
+		const scalePos = (x: number) => this.scaleBetween(x, 0, width, -1, 1);
+		const scaleSize = (x: number) => this.scaleBetween(x, 0, width, 0, 2);
+		for (const biome of this.biomes) {
+			ctx.beginPath();
+			ctx.rect(
+				scalePos(biome.coordinates[0].x),
+				scalePos(biome.coordinates[0].y),
+				Math.abs(scaleSize(biome.coordinates[1].x - biome.coordinates[0].x)),
+				Math.abs(scaleSize(biome.coordinates[1].y - biome.coordinates[0].y)),
+			);
+			ctx.fillStyle = biome.color;
+			ctx.fill();
+		}
+	}
+
+	public dist(p1: Point, p2: Point): number {
+		return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+	}
+
+	public setColorRanges(biomes: Biome[]): void {
+		this.biomes = biomes;
 	}
 
 	public setHeightMapConfig(config: Config): void {
@@ -65,17 +90,17 @@ export default class GridMapGenerator {
 				let e = 0;
 				let acc = 0;
 				for (let o = 0; o < this.moistureMapConfig.octaves; o++) {
-					acc += 1 / Math.pow(2, o);
-					e += this.moistureMapNoise(Math.pow(2, o) * nx, Math.pow(2, o) * ny) / Math.pow(2, o);
+					acc += 1 / 2 ** o;
+					e += this.moistureMapNoise((2 ** o) * nx, (2 ** o) * ny) / (2 ** o);
 				}
 				e = e / acc;
-				map[x][y] = Math.pow(e, 1);
+				map[x][y] = e ** 1;
 			}
 		}
 		this.moistureMap = map;
 	}
 
-	private createHeightMap(shouldRegenerate?: boolean): void {
+	private createHeightMap(shouldRegenerate: boolean): void {
 		const map: number[][] = [];
 		if (shouldRegenerate || !this.heightMapNoise) {
 			this.heightMapNoise = createNoise2D();
@@ -101,8 +126,14 @@ export default class GridMapGenerator {
 		this.heightMap = map;
 	}
 
-	private drawGridMap(shouldRegenerate?: boolean): void {
-		const ctx = this.get2DCanvas("map", this.heightMapConfig);
+	private drawGridMap(shouldRegenerate: boolean): void {
+		const ctx = this.get2DCanvas(
+			"map",
+			this.heightMapConfig.width,
+			this.heightMapConfig.height,
+			this.heightMapConfig.tilesize,
+			this.heightMapConfig.gap
+		);
 		this.createHeightMap(shouldRegenerate);
 		for (let i = 0; i < this.heightMapConfig.width; i++) {
 			for (let j = 0; j < this.heightMapConfig.height; j++) {
@@ -113,14 +144,20 @@ export default class GridMapGenerator {
 					this.heightMapConfig.tilesize,
 					this.heightMapConfig.tilesize
 				);
-				ctx.fillStyle = this.chooseColor(this.heightMap[i][j]);
+				ctx.fillStyle = this.chooseColor(this.heightMap[i][j], this.moistureMap[i][j]);
 				ctx.fill();
 			}
 		}
 	}
 
-	private drawRawMap(name: string, rawMap: number[][], width: number, height: number, tilesize: number, octaves: number): void {
-		const ctx = this.get2DCanvas(name, { width, height, tilesize, gap: 0, frequency: 0, octaves });
+	private drawRawMap(
+		name: string,
+		rawMap: number[][],
+		width: number,
+		height: number,
+		tilesize: number,
+	): void {
+		const ctx = this.get2DCanvas(name, width, height, tilesize, 0);
 		for (let i = 0; i < rawMap.length; i++) {
 			for (let j = 0; j < rawMap[i].length; j++) {
 				ctx.beginPath();
@@ -131,22 +168,34 @@ export default class GridMapGenerator {
 		}
 	}
 
-	private chooseColor(value: number): string {
-		for (const colorRange of this.colorRanges) {
-			if (value >= colorRange.min && value <= colorRange.max) {
-				return colorRange.color;
-			}
+	private chooseColor(x: number, y: number): string {
+		const matchingBiomes: Biome[] = this.biomes.filter(biome => {
+			return (
+				x >= biome.coordinates[0].x &&
+				x <= biome.coordinates[1].x &&
+				y >= biome.coordinates[0].y &&
+				y <= biome.coordinates[1].y
+			);
+		});
+		if (matchingBiomes.some((biome) => biome.name === "lava")) {
+			console.log("matchingBiomes", matchingBiomes);
 		}
-		return "black";
+		return matchingBiomes.at(-1)?.color ?? "black";
 	}
 
-	private get2DCanvas(name: string, config: Config): CanvasRenderingContext2D {
+	private get2DCanvas(
+		name: string,
+		width: number,
+		height: number,
+		tilesize: number,
+		gap: number
+	): CanvasRenderingContext2D {
 		const canvas = document.getElementById(name) as HTMLCanvasElement | null;
 		if (!canvas) {
 			throw new Error("No canvas element found");
 		}
-		canvas.width = config.width * (config.tilesize + config.gap);
-		canvas.height = config.height * (config.tilesize + config.gap);
+		canvas.width = width * (tilesize + gap);
+		canvas.height = height * (tilesize + gap);
 		const ctx = canvas.getContext("2d");
 		if (!ctx) {
 			throw new Error("No canvas context found");
