@@ -99,8 +99,12 @@
 	<main class="layout bg-slate-100 dark:bg-slate-600 text-slate-900 dark:text-slate-100 overflow-y-hidden">
 		<div class="flex fixed bottom-4 left-4 z-60">
 			<p class="text-slate-700 dark:text-slate-300 text-xs">
-				<a class="underline font-semibold hover:no-underline" href="">Freely accessible on GitLab</a> under the
-				Apache 2.0 Licence
+				<a
+					class="underline font-semibold hover:no-underline"
+					href="https://gitlab.com/ekkaia/gridmap-playground"
+					>Freely accessible on GitLab</a
+				>
+				under the Apache 2.0 Licence
 			</p>
 		</div>
 		<section class="content">
@@ -476,53 +480,173 @@ import "normalize.css";
 const biomes = reactive<Biome[]>([
 	{
 		coordinates: [
-			{ x: -1, y: -1 },
-			{ x: 1, y: 0 },
+			{
+				x: -1,
+				y: -1,
+			},
+			{
+				x: 1,
+				y: 0,
+			},
 		],
-		color: "#0081C9",
+		color: "#4f64c9",
 		name: "water",
 		id: 0,
 	},
 	{
+		name: "deep water",
+		color: "#4c5aa4",
 		coordinates: [
-			{ x: -1, y: 0 },
-			{ x: 1, y: 0.1 },
+			{
+				x: 0,
+				y: -1,
+			},
+			{
+				x: 0.5,
+				y: -0.5,
+			},
 		],
-		color: "#FFD56F",
-		name: "sand",
+		id: 5,
+	},
+	{
+		coordinates: [
+			{
+				x: -1,
+				y: 0,
+			},
+			{
+				x: 1,
+				y: 0.1,
+			},
+		],
+		color: "#f8d796",
+		name: "beach",
 		id: 1,
 	},
 	{
 		coordinates: [
-			{ x: -1, y: 0.1 },
-			{ x: 0, y: 0.5 },
+			{
+				x: -1,
+				y: 0.1,
+			},
+			{
+				x: 1,
+				y: 0.5,
+			},
 		],
-		color: "#367E18",
-		name: "grass",
+		color: "#61a84d",
+		name: "plain",
 		id: 2,
 	},
 	{
 		coordinates: [
-			{ x: 0, y: 0.1 },
-			{ x: 1, y: 0.5 },
+			{
+				x: 0,
+				y: 0.2,
+			},
+			{
+				x: 1,
+				y: 0.5,
+			},
 		],
-		color: "#264d16",
+		color: "#3b8632",
 		name: "forest",
 		id: 3,
 	},
 	{
 		coordinates: [
-			{ x: -1, y: 0.5 },
-			{ x: 1, y: 1 },
+			{
+				x: -1,
+				y: 0.5,
+			},
+			{
+				x: 1,
+				y: 1,
+			},
 		],
-		color: "#473C33",
-		name: "rock",
+		color: "#533e1a",
+		name: "moutain",
 		id: 4,
+	},
+	{
+		name: "ice sea",
+		color: "#a8a8fd",
+		coordinates: [
+			{
+				x: 0.5,
+				y: -1,
+			},
+			{
+				x: 1,
+				y: -0.5,
+			},
+		],
+		id: 6,
+	},
+	{
+		name: "shore",
+		color: "#3b55bc",
+		coordinates: [
+			{
+				x: -1,
+				y: -0.1,
+			},
+			{
+				x: 1,
+				y: 0,
+			},
+		],
+		id: 7,
+	},
+	{
+		name: "rock",
+		color: "#70706e",
+		coordinates: [
+			{
+				x: -1,
+				y: 0.6,
+			},
+			{
+				x: 1,
+				y: 1,
+			},
+		],
+		id: 8,
+	},
+	{
+		name: "snow",
+		color: "#e2e1de",
+		coordinates: [
+			{
+				x: -1,
+				y: 0.8,
+			},
+			{
+				x: 1,
+				y: 1,
+			},
+		],
+		id: 9,
+	},
+	{
+		name: "savana",
+		color: "#98cb2a",
+		coordinates: [
+			{
+				x: -1,
+				y: 0.3,
+			},
+			{
+				x: -0.3,
+				y: 0.5,
+			},
+		],
+		id: 10,
 	},
 ]);
 const isDarkMode = ref<boolean | undefined>(undefined);
-const heightMapConfig = reactive<Config>({ width: 96, height: 96, frequency: 2, tilesize: 8, gap: 1, octaves: 3 });
-const moistureMapConfig = reactive<ConfigLight>({ frequency: 2, octaves: 3 });
+const heightMapConfig = reactive<Config>({ width: 250, height: 250, frequency: 3, tilesize: 3, gap: 0, octaves: 8 });
+const moistureMapConfig = reactive<ConfigLight>({ frequency: 3, octaves: 8 });
 const gridMapGenerator = new GridMapGenerator(heightMapConfig, moistureMapConfig, biomes);
 const editBiome = ref<Omit<Biome, "id">>({
 	name: "",
