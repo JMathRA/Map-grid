@@ -108,14 +108,14 @@
 			</p>
 		</div>
 		<section class="content">
-			<div class="flex justify-center items-center h-full">
-				<canvas id="map"></canvas>
+			<div class="flex justify-center items-center h-full w-full">
+				<canvas id="map" class="bg-slate-900 <md:h-full"></canvas>
 			</div>
 		</section>
 		<section
-			:class="['sidebar bg-slate-200 dark:bg-slate-800 py-8 h-full relative', { 'hide-sidebar': isSidebarOpen }]"
+			:class="['sidebar bg-slate-400 dark:bg-slate-800 py-8 h-full relative', { 'hide-sidebar': isSidebarOpen }]"
 		>
-			<div class="absolute -left-12 top-10">
+			<div class="absolute -left-12 top-10 <md:-left-8">
 				<button @click="isSidebarOpen = !isSidebarOpen" :class="{ 'menu-rotate': isSidebarOpen }">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +140,7 @@
 					<div class="mb-6">
 						<div class="bg-slate-300 dark:bg-slate-700 rounded-xl p-4 flex flex-col gap-4">
 							<h2 class="text-lg font-semibold text-center">Config</h2>
-							<details class="flex flex-col bg-slate-400 dark:bg-slate-600 rounded-xl p-4" open>
+							<details class="flex flex-col bg-slate-200 dark:bg-slate-600 rounded-xl p-4" open>
 								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 									<h2 class="text-lg font-semibold">Height map</h2>
 									<svg
@@ -239,7 +239,7 @@
 									</div>
 								</div>
 							</details>
-							<details class="flex flex-col bg-slate-400 dark:bg-slate-600 rounded-xl p-4" open>
+							<details class="flex flex-col bg-slate-200 dark:bg-slate-600 rounded-xl p-4" open>
 								<summary class="flex flex-row justify-between items-center cursor-pointer select-none">
 									<h2 class="text-lg font-semibold">Moisture map</h2>
 									<svg
@@ -355,7 +355,7 @@
 											<div
 												v-for="(biome, i) in biomes"
 												:key="biome.id"
-												class="rounded-xl bg-slate-400 dark:bg-slate-600 py-2 px-3 cursor-move"
+												class="rounded-xl bg-slate-200 dark:bg-slate-600 py-2 px-3 cursor-move"
 											>
 												<div
 													class="grid grid-cols-[1fr,0.5fr,1fr,1fr,0.5fr,0.5fr] gap-2 items-center"
@@ -467,7 +467,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import Button from "./components/Button.vue";
 import Modal from "./components/Modal.vue";
 import { VueDraggableNext as draggable } from "vue-draggable-next";
@@ -817,8 +817,7 @@ main {
 	height: 100vh;
 
 	.content {
-		flex-basis: 0;
-		flex-grow: 999;
+		width: calc(100% - 28rem);
 		height: 100%;
 	}
 
@@ -830,6 +829,8 @@ main {
 	}
 
 	.sidebar {
+		margin-left: auto;
+		max-width: 90%;
 		flex-basis: 28rem;
 		flex-grow: 1;
 		z-index: 998;
@@ -853,7 +854,7 @@ main {
 	}
 
 	100% {
-		transform: translateX(28rem);
+		transform: translateX(100%);
 	}
 }
 
@@ -877,19 +878,15 @@ details[open] .arrow-summary {
 	transform: rotate(0deg);
 }
 
-canvas {
-	@apply bg-slate-900;
-}
-
 input {
-	@apply rounded-lg text-slate-900 py-1 px-3 bg-slate-200 dark: bg-slate-300 placeholder-slate-500 h-10 w-full;
+	@apply rounded-lg text-slate-900 py-1 px-3 bg-slate-50 dark: bg-slate-300 placeholder-slate-500 h-10 w-full;
 
 	&[type="color"] {
 		@apply p-1;
 	}
 
 	&:focus {
-		@apply outline-none ring-2 ring-slate-500;
+		@apply outline-none ring-2 ring-slate-300;
 	}
 
 	&:disabled {
