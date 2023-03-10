@@ -136,6 +136,7 @@ export default class GridMapGenerator {
 			this.heightMapConfig.gap
 		);
 		this.createHeightMap(shouldRegenerate);
+		this.coloredMap = [];
 		for (let i = 0; i < this.heightMapConfig.width; i++) {
 			this.coloredMap.push([]);
 			for (let j = 0; j < this.heightMapConfig.height; j++) {
