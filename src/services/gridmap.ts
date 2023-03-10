@@ -3,6 +3,7 @@ import { Biome, Config, ConfigLight, Point } from "./interfaces";
 
 export default class GridMapGenerator {
 	private biomes: Biome[];
+	public coloredMap: string[][] = [];
 	// HEIGHT MAP
 	private heightMapConfig: Config;
 	private heightMap: number[][] = [];
@@ -102,7 +103,7 @@ export default class GridMapGenerator {
 
 	private createHeightMap(shouldRegenerate: boolean): void {
 		const map: number[][] = [];
-		if (shouldRegenerate || !this.heightMapNoise) {
+		if (shouldRegenerate || this.heightMapNoise === undefined) {
 			this.heightMapNoise = createNoise2D();
 		}
 		const wavelengthX = this.heightMapConfig.width / this.heightMapConfig.frequency;
@@ -136,6 +137,7 @@ export default class GridMapGenerator {
 		);
 		this.createHeightMap(shouldRegenerate);
 		for (let i = 0; i < this.heightMapConfig.width; i++) {
+			this.coloredMap.push([]);
 			for (let j = 0; j < this.heightMapConfig.height; j++) {
 				ctx.beginPath();
 				ctx.rect(
@@ -144,7 +146,9 @@ export default class GridMapGenerator {
 					this.heightMapConfig.tilesize,
 					this.heightMapConfig.tilesize
 				);
-				ctx.fillStyle = this.chooseColor(this.heightMap[i][j], this.moistureMap[i][j]);
+				const color = this.chooseColor(this.heightMap[i][j], this.moistureMap[i][j]);
+				ctx.fillStyle = color;
+				this.coloredMap[i][j] = color;
 				ctx.fill();
 			}
 		}

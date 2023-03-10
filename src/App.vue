@@ -107,6 +107,12 @@
 				under the Apache 2.0 Licence
 			</p>
 		</div>
+		<div class="flex fixed top-4 left-4 z-60">
+			<Button class="flex flex-row gap-2 py-2 px-4" @click="downloadMapJSON">
+				<span>Save map as JSON</span>
+				<img src="./assets/download.svg" alt="Download" width="18" height="18" />
+			</Button>
+		</div>
 		<section class="content">
 			<div class="flex justify-center items-center h-full w-full">
 				<canvas id="map" class="bg-slate-900 <md:h-full"></canvas>
@@ -759,6 +765,20 @@ function uploadSettings(): void {
 		});
 		reader.readAsText(file);
 	}
+}
+
+function downloadMapJSON(): void {
+	const blob = new Blob([JSON.stringify(gridMapGenerator.coloredMap)], { type: "application/json;charset=utf-8" });
+	const event = new Date();
+	const options: Intl.DateTimeFormatOptions = {
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	};
+	const date = event.toLocaleString("en", options);
+	saveAs(blob, `gridmap-playground-map-${date}.json`);
 }
 
 watch(heightMapConfig, () => {

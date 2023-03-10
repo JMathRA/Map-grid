@@ -19,8 +19,4 @@ export interface Config {
 	octaves: number;
 }
 
-
-export interface ConfigLight {
-	frequency: number;
-	octaves: number;
-}
+export type ConfigLight = Pick<Config, "frequency" | "octaves">;
