@@ -22,19 +22,13 @@ export default class GridMapGenerator {
 	public draw(shouldRegenerate: boolean): void {
 		this.createMoistureMap();
 		this.drawGridMap(shouldRegenerate);
-		this.drawRawMap(
-			"raw-height-map",
-			this.heightMap,
-			this.heightMapConfig.width,
-			this.heightMapConfig.height,
-			1,
-		);
+		this.drawRawMap("raw-height-map", this.heightMap, this.heightMapConfig.width, this.heightMapConfig.height, 1);
 		this.drawRawMap(
 			"raw-moisture-map",
 			this.moistureMap,
 			this.heightMapConfig.width,
 			this.heightMapConfig.height,
-			1,
+			1
 		);
 	}
 
@@ -54,7 +48,7 @@ export default class GridMapGenerator {
 				scalePos(biome.coordinates[0].x),
 				scalePos(biome.coordinates[0].y),
 				Math.abs(scaleSize(biome.coordinates[1].x - biome.coordinates[0].x)),
-				Math.abs(scaleSize(biome.coordinates[1].y - biome.coordinates[0].y)),
+				Math.abs(scaleSize(biome.coordinates[1].y - biome.coordinates[0].y))
 			);
 			ctx.fillStyle = biome.color;
 			ctx.fill();
@@ -92,7 +86,7 @@ export default class GridMapGenerator {
 				let acc = 0;
 				for (let o = 0; o < this.moistureMapConfig.octaves; o++) {
 					acc += 1 / 2 ** o;
-					e += this.moistureMapNoise((2 ** o) * nx, (2 ** o) * ny) / (2 ** o);
+					e += this.moistureMapNoise(2 ** o * nx, 2 ** o * ny) / 2 ** o;
 				}
 				e = e / acc;
 				map[x][y] = e ** 1;
@@ -155,26 +149,45 @@ export default class GridMapGenerator {
 		}
 	}
 
-	private drawRawMap(
-		name: string,
-		rawMap: number[][],
-		width: number,
-		height: number,
-		tilesize: number,
-	): void {
-		const ctx = this.get2DCanvas(name, width, height, tilesize, 0);
-		for (let i = 0; i < rawMap.length; i++) {
-			for (let j = 0; j < rawMap[i].length; j++) {
-				ctx.beginPath();
-				ctx.rect(i * tilesize, j * tilesize, tilesize, tilesize);
-				ctx.fillStyle = this.blackAndWhiteColors(rawMap[i][j]);
-				ctx.fill();
+	// Assumes tileSize > 0 && width > 0 && height > 0
+	// Assumes rawMap rows and columns match height and width
+	// Assumes sizes rawMap.length === height && rawMap[0 to height - 1].length === width
+	private drawRawMap(name: string, rawMap: number[][], width: number, height: number, tilesize: number) {
+		// Next 4 lines best done only when needed (eg width or height change)
+		const wCanvas = Object.assign(document.createElement("canvas"), { width, height }); // create working canvas
+		const wCtx = wCanvas.getContext("2d", { willReadFrequently: true })!;
+		const imgData = wCtx.getImageData(0, 0, width, height);
+		const d32 = new Uint32Array(imgData.data.buffer); // get 32 bit int view of pixels
+
+		// Next 2 lines best done once
+		const pxLu = new Uint32Array(256); // Lookup gray scale pixels
+		for (let i = 0; i < 255; i++) {
+			pxLu[i] = 0xff000000 | (i << 16) | (i << 8) | i;
+		}
+
+		// draw rawMap into 32bit pixel view d32
+		let idx = 0;
+		for (const row of rawMap) {
+			// assumes rows
+			for (const val of row) {
+				// val for each column
+				d32[idx++] = pxLu[((val + 1) * 0.5 * 255) | 0]; // assumes val -1 to 1 convert to 0 -255, the | 0 forces integer
 			}
 		}
+		wCtx.putImageData(imgData, 0, 0); // move pixels to work canvas
+
+		// draw working canvas onto display canvas.
+		const ctx = this.get2DCanvas(name, width, height, tilesize, 0);
+		if (!ctx) {
+			return; /* Fatal error */
+		}
+		ctx.imageSmoothingEnabled = false;
+		ctx.drawImage(wCanvas, 0, 0, width * tilesize, height * tilesize);
+		ctx.imageSmoothingEnabled = true;
 	}
 
 	private chooseColor(x: number, y: number): string {
-		const matchingBiomes: Biome[] = this.biomes.filter(biome => {
+		const matchingBiomes: Biome[] = this.biomes.filter((biome) => {
 			return (
 				x >= biome.coordinates[0].x &&
 				x <= biome.coordinates[1].x &&
