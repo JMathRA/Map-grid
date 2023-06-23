@@ -110,8 +110,8 @@
 			<p class="text-slate-700 dark:text-slate-300 text-xs">
 				<a
 					class="underline font-semibold hover:no-underline"
-					href="https://gitlab.com/ekkaia/gridmap-playground"
-					>Freely accessible on GitLab</a
+					href="https://github.com/JMathRA/Map-grid"
+					>Freely accessible on Github</a
 				>
 				under the Apache 2.0 Licence
 			</p>
@@ -473,7 +473,7 @@
 						<img src="./assets/light.svg" alt="Light mode" v-else />
 					</button>
 					<p class="dark:text-slate-400 text-slate-500">
-						Made with ❤️ by <span class="font-semibold">Ekkaia</span>
+						Made with ❤️ by <span class="font-semibold">João</span>
 					</p>
 				</div>
 			</div>
